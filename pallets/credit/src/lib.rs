@@ -1,6 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 pub use pallet::*;
+use frame_support::codec::{Decode, Encode};
 
 #[cfg(test)]
 mod mock;
@@ -9,6 +10,13 @@ mod mock;
 mod tests;
 
 pub(crate) const LOG_TARGET: &'static str = "credit";
+
+/// CreditInfo to be removed
+#[derive(Decode, Encode, Default, Clone, Debug, PartialEq, Eq)]
+pub struct CreditInfo{
+	pub credit: u16,
+	pub number_of_referees: u8,
+}
 
 // syntactic sugar for logging.
 #[macro_export]
@@ -22,7 +30,7 @@ macro_rules! log {
 }
 
 pub trait CreditInterface<AccountId> {
-    fn get_credit_score(account_id: AccountId) -> Option<u64>;
+    fn get_credit_score(account_id: AccountId) -> Option<u16>;
     fn pass_threshold(account_id: &AccountId, _ttype: u8) -> bool;
     fn credit_slash(accouont_id: AccountId);
 }
@@ -47,17 +55,17 @@ pub mod pallet {
         //type Currency: Currency<Self::AccountId>;
         type CurrencyToVote: Convert<BalanceOf<Self>, u64> + Convert<u128, BalanceOf<Self>>;
         /// Credit init score
-        type CreditInitScore: Get<u64>;
+        type CreditInitScore: Get<u16>;
         /// Credit score threshold
-        type MaxCreditScore: Get<u64>;
+        type MaxCreditScore: Get<u16>;
         /// Credit score cap per Era
         type CreditScoreCapPerEra: Get<u8>;
         /// credit score attenuation low threshold
-        type CreditScoreAttenuationLowerBound: Get<u64>;
+        type CreditScoreAttenuationLowerBound: Get<u16>;
         /// credit score attenuation step
-        type CreditScoreAttenuationStep: Get<u64>;
+        type CreditScoreAttenuationStep: Get<u16>;
         /// Credit score delegated threshold
-        type CreditScoreDelegatedPermitThreshold: Get<u64>;
+        type CreditScoreDelegatedPermitThreshold: Get<u16>;
         /// mircropayment size to credit factor:
         type MicropaymentToCreditScoreFactor: Get<u64>;
     }
@@ -73,16 +81,21 @@ pub mod pallet {
     #[pallet::storage]
     #[pallet::getter(fn get_user_credit)]
     pub(super) type UserCredit<T: Config> =
-        StorageMap<_, Blake2_128Concat, T::AccountId, u64, OptionQuery>;
+        StorageMap<_, Blake2_128Concat, T::AccountId, u16, OptionQuery>;
+    
+    #[pallet::storage]
+    #[pallet::getter(fn get_number_of_referees)]
+    pub(super) type NumberOfReferees<T: Config> =
+        StorageMap<_, Blake2_128Concat, T::AccountId, u8, OptionQuery>;
 
     #[pallet::event]
     #[pallet::metadata(T::AccountId = "AccountId")]
     #[pallet::generate_deposit(pub(super) fn deposit_event)]
     pub enum Event<T: Config> {
-        CreditInitSuccess(T::AccountId, u64),
-        CreditInitFailed(T::AccountId, u64),
-        CreditUpdateSuccess(T::AccountId, u64),
-        CreditUpdateFailed(T::AccountId, u64),
+        CreditInitSuccess(T::AccountId, u16),
+        CreditInitFailed(T::AccountId, u16),
+        CreditUpdateSuccess(T::AccountId, u16),
+        CreditUpdateFailed(T::AccountId, u16),
         KillCreditSuccess(T::AccountId),
         KillCreditFailed(T::AccountId),
     }
@@ -100,6 +113,37 @@ pub mod pallet {
         InvalidScore,
         /// credit init failed
         CreditInitFailed,
+    }
+
+    // TODO 
+    #[pallet::genesis_config]
+    pub struct GenesisConfig<T: Config> {
+        pub credits: Vec<(T::AccountId, u16)>,
+        pub number_of_referees: Vec<(T::AccountId, u8)>,
+    }
+
+    // TODO 
+    #[cfg(feature = "std")]
+    impl<T: Config> Default for GenesisConfig<T> {
+        fn default() -> Self {
+            GenesisConfig {
+                credits: Default::default(),
+                number_of_referees: Default::default(),
+            }
+        }
+    }
+
+    // TODO 
+    #[pallet::genesis_build]
+    impl<T: Config> GenesisBuild<T> for GenesisConfig<T> {
+        fn build(&self) {
+            for (account_id, credit) in &self.credits {
+                <UserCredit<T>>::insert(account_id, credit);
+            }
+            for (account_id, number_of_referee) in &self.number_of_referees {
+                <NumberOfReferees<T>>::insert(account_id, number_of_referee);
+            }
+        }
     }
 
     #[pallet::hooks]
@@ -145,7 +189,7 @@ pub mod pallet {
 
     impl<T: Config> Pallet<T> {
         /// init credit score
-        pub fn _initialize_credit(account_id: &T::AccountId, score: u64) -> bool {
+        pub fn _initialize_credit(account_id: &T::AccountId, score: u16) -> bool {
             // in general, a user start from initial score = 0; with coupon, a user can
             // start from initial score at most CreditInitScore
             // TODO: i.e. add coupon verification for non-zero init credit score
@@ -163,10 +207,10 @@ pub mod pallet {
                 if size >= 1 {
                     let balance_num =
                         <T::CurrencyToVote as Convert<BalanceOf<T>, u64>>::convert(balance);
-                    let mut score_delta: u64 = balance_num
+                    let mut score_delta: u16 = balance_num
                         .checked_div(T::MicropaymentToCreditScoreFactor::get())
-                        .unwrap_or(0);
-                    let cap: u64 = T::CreditScoreCapPerEra::get() as u64;
+                        .unwrap_or(0) as u16;
+                    let cap: u16 = T::CreditScoreCapPerEra::get() as u16;
                     if score_delta > cap {
                         score_delta = cap
                     }
@@ -187,7 +231,7 @@ pub mod pallet {
         }
 
         /// innner: update credit score
-        fn _update_credit(account_id: &T::AccountId, score: u64) -> bool {
+        fn _update_credit(account_id: &T::AccountId, score: u16) -> bool {
             if UserCredit::<T>::contains_key(account_id) {
                 match score {
                     score if score > T::MaxCreditScore::get() => {
@@ -250,7 +294,7 @@ pub mod pallet {
         }
     }
     impl<T: Config> CreditInterface<T::AccountId> for Module<T> {
-        fn get_credit_score(account_id: T::AccountId) -> Option<u64> {
+        fn get_credit_score(account_id: T::AccountId) -> Option<u16> {
             Self::get_user_credit(account_id)
         }
     
@@ -267,6 +311,7 @@ pub mod pallet {
         }
     
         /// credit slash
+        /// TODO to use _credit : u16
         fn credit_slash(account_id: T::AccountId) {
             if UserCredit::<T>::contains_key(account_id.clone()) {
                 UserCredit::<T>::mutate(account_id, |s| {

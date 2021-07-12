@@ -1076,12 +1076,12 @@ impl pallet_deeper_node::Config for Runtime {
 }
 
 parameter_types! {
-    pub const CreditInitScore: u64 = 60;
-    pub const MaxCreditScore: u64 = 800;
+    pub const CreditInitScore: u16 = 60;
+    pub const MaxCreditScore: u16 = 800;
     pub const CreditScoreCapPerEra: u8 = 5;
-    pub const CreditScoreAttenuationLowerBound: u64 = 40;
-    pub const CreditScoreAttenuationStep: u64 = 5;
-    pub const CreditScoreDelegatedPermitThreshold: u64 = 60;
+    pub const CreditScoreAttenuationLowerBound: u16 = 40;
+    pub const CreditScoreAttenuationStep: u16 = 5;
+    pub const CreditScoreDelegatedPermitThreshold: u16 = 60;
     pub const MicropaymentToCreditScoreFactor: u64 = 1_000_000_000_000_000;
     pub const BlocksPerEra: BlockNumber = BLOCKS_PER_ERA;
 }

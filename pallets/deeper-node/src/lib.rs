@@ -82,7 +82,13 @@ pub mod pallet {
     #[pallet::getter(fn get_servers_by_region)]
     pub(super) type ServersByRegion<T: Config> =
         StorageMap<_, Blake2_128Concat, CountryRegion, Vec<T::AccountId>, ValueQuery>;
+    
+    #[pallet::storage]
+    #[pallet::getter(fn get_im_online)]
+    pub(super) type ImOnline<T: Config> =
+        StorageMap<_, Blake2_128Concat, T::AccountId, T::BlockNumber, ValueQuery>; // TODO
 
+    // TODO refector to remove tmp    
     #[pallet::genesis_config]
     pub struct GenesisConfig<T: Config> {
         pub tmp: BalanceOf<T>
@@ -146,6 +152,8 @@ pub mod pallet {
 
     #[pallet::hooks]
     impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {}
+
+    // TODO on_finalize
 
     // Dispatchable functions allows users to interact with the pallet and invoke state changes.
     // These functions materialize as "extrinsics", which are often compared to transactions.
@@ -255,6 +263,16 @@ pub mod pallet {
                 Error::<T>::DeviceNotRegister
             );
             let _ = Self::try_remove_server(&sender);
+            Ok(().into())
+        }
+
+        // TODO
+        #[pallet::weight(10_000)]
+        pub fn im_online(
+            origin: OriginFor<T>,
+            SN: IpV4, //TODO type
+            country: CountryRegion,
+        ) -> DispatchResultWithPostInfo {
             Ok(().into())
         }
     }

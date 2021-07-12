@@ -373,6 +373,47 @@ pub type EraIndex = u32;
 /// Counter for the number of "reward" points earned by a given validator.
 pub type RewardPoint = u32;
 
+
+
+#[derive(Decode, Encode, Clone, Debug, PartialEq, Eq)]
+pub enum CreditLevel {
+	Zero,
+	One,
+	Two,
+	Three,
+	Four,
+	Five,
+	Six,
+	Seven,
+	Eight,
+}
+
+impl Default for CreditLevel {
+	fn default() -> Self{
+		CreditLevel::Zero
+	}
+}
+
+impl CreditLevel {
+	fn lookup(credit: u16) -> CreditLevel {
+		// TODO
+		CreditLevel::default()
+	}
+}
+
+/// CreditSetting 
+#[derive(Decode, Encode, Default, Clone, Debug, PartialEq, Eq)]
+pub struct CreditSetting<Balance>{
+	pub credit_level: CreditLevel,
+	pub balance: Balance,
+	pub base_apy: Percent,
+	pub bonus_apy: Percent,
+	pub tax_rate: Percent,
+	pub number_of_referees: u8,
+	pub reward_per_referee: Balance,
+}
+
+
 // Note: Maximum nomination limit is set here -- 16.
 generate_solution_type!(
 	#[compact]
@@ -665,6 +706,16 @@ pub struct UnappliedSlash<AccountId, Balance: HasCompact> {
 	payout: Balance,
 }
 
+
+#[derive(Encode, Decode, Default, RuntimeDebug)]
+pub struct RewardInfo<Balance: HasCompact> {
+	pub total_referee_reward: Balance,
+	pub received_referee_reward: Balance,
+	pub daily_referee_reward: Balance,
+	pub received_pocr_reward: Balance,
+	pub daily_poc_reward: Balance,
+}
+
 /// Indicate how an election round was computed.
 #[derive(PartialEq, Eq, Clone, Copy, Encode, Decode, RuntimeDebug)]
 pub enum ElectionCompute {
@@ -894,6 +945,8 @@ pub trait Config: frame_system::Config + SendTransactionTypes<Call<Self>> {
     type BlocksPerEra: Get<u128>;
 
     type RemainderMiningReward: Get<u128>;
+
+
 }
 
 /// Mode of era-forcing.
@@ -1119,6 +1172,14 @@ decl_storage! {
 
         pub RemainderMiningReward get(fn remainder_mining_reward): Option<u128>;
 
+		/// 
+		pub CreditSettings get(fn credit_setting):
+			map hasher(identity) CreditLevel => CreditSetting<BalanceOf<T>>;
+		
+		/// TODO
+		pub Reward get(fn get_reward):
+			map hasher(blake2_128_concat) T::AccountId => RewardInfo<BalanceOf<T>>; 
+
 		/// True if network has been upgraded to this version.
 		/// Storage version of the pallet.
 		///
@@ -1126,6 +1187,7 @@ decl_storage! {
 		StorageVersion build(|_: &GenesisConfig<T>| Releases::V5_0_0): Releases;
 	}
 	add_extra_genesis {
+		// TODO initialize CreditSetting 
 		config(stakers):
 			Vec<(T::AccountId, T::AccountId, BalanceOf<T>, StakerStatus<T::AccountId>)>;
 		build(|config: &GenesisConfig<T>| {
@@ -1526,6 +1588,13 @@ decl_module! {
 			Self::update_ledger(&controller, &item);
 		}
 
+		// TODO change CreditSetting
+		#[weight = T::WeightInfo::bond()]
+		pub fn change_credit_setting(origin,
+			credit_setting: CreditSetting<BalanceOf<T>>
+		) -> DispatchResultWithPostInfo {
+			Ok(().into())
+		}
 		/// Add some extra amount that have appeared in the stash `free_balance` into the balance up
 		/// for staking.
 		///
@@ -1744,6 +1813,9 @@ decl_module! {
 		/// - Reads: Era Election Status, Ledger, Current Era
 		/// - Writes: Validators, Nominators
 		/// # </weight>
+		/// 
+		/// TODO replace me with delegate function in delegating pallet
+		/// 
 		#[weight = T::WeightInfo::nominate(targets.len() as u32)]
 		pub fn nominate(origin, targets: Vec<<T::Lookup as StaticLookup>::Source>) {
 			ensure!(Self::era_election_status().is_closed(), Error::<T>::CallNotAllowed);
@@ -2915,6 +2987,8 @@ impl<T: Config> Module<T> {
 		}
 	}
 
+	// TODO remove POS reward, and implement new poc reward 
+	// consider changing balance directly and its inpact on performance
 	fn calculate_era_payout(current_era: EraIndex) -> (BalanceOf<T>, BalanceOf<T>) {
         let mut reward_per_block = <BlockReward>::get().unwrap();
         let remain = <RemainderMiningReward>::get().unwrap();

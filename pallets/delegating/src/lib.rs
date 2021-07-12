@@ -90,7 +90,7 @@ pub mod pallet {
     #[derive(Decode, Encode, Default)]
     pub struct CreditDelegateInfo<AccountId> {
         pub delegator: AccountId,
-        pub score: u64,
+        pub score: u16,
         pub validators: Vec<AccountId>,
     }
 
@@ -299,7 +299,7 @@ pub mod pallet {
             delegator: T::AccountId,
             target_validators: Vec<T::AccountId>,
         ) -> Vec<(T::AccountId, u64)> {
-            let total_score = T::CreditInterface::get_credit_score(delegator.clone()).unwrap();
+            let total_score = T::CreditInterface::get_credit_score(delegator.clone()).unwrap() as u64;
             let len = target_validators.len();
             let answer: u64 = total_score / len as u64;
             let mut remainder: u64 = total_score % len as u64;
