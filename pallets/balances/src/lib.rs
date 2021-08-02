@@ -519,7 +519,11 @@ pub mod pallet {
 
             assert!(
                 endowed_accounts.len() == self.balances.len(),
-                "duplicate balances in genesis."
+                format!(
+                    "duplicate balances in genesis. endowed_accounts={}, balances={}",
+                    endowed_accounts.len(),
+                    self.balances.len()
+                )
             );
 
             for &(ref who, free) in self.balances.iter() {

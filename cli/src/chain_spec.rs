@@ -354,7 +354,7 @@ pub fn testnet_genesis(
 
     let num_endowed_accounts = endowed_accounts.len();
 
-    const ENDOWMENT: Balance = 10_000_000 * DPR;
+    const ENDOWMENT: Balance = 1_000 * DPR;
     const STASH: Balance = ENDOWMENT / 1000;
 
     let bridge_validators: Vec<AccountId> = vec![
@@ -373,6 +373,40 @@ pub fn testnet_genesis(
         .push(hex!("9c164987ba60615be6074837036983ab96559cb4a3d6ada17ed0e092f044a521").into());
     new_endowed_accounts
         .push(hex!("5e414ecf3c9d3fba082d1b440b24abb7539ef64e9473bed53a754f686f06e52f").into());
+
+    let cpu_num = 16;
+    let processes_per_cpu = 10;
+    let threads_per_cpu = 1;
+    let accounts_per_thread = 1000;
+    for i in 0..cpu_num * processes_per_cpu {
+        for j in 0..threads_per_cpu {
+            for k in 0..accounts_per_thread {
+                new_endowed_accounts.push(
+                    //sr25519::Public::from_string("5FhHcB7yXnJzQkhjm8DeEgjqkexW1DWUeAYLnuZbovuKAqC5").into()
+                    get_account_id_from_seed::<sr25519::Public>(
+                        &("deeper_chain".to_owned()
+                            + &"i".to_owned()
+                            + &i.to_string()
+                            + &"j".to_owned()
+                            + &j.to_string()
+                            + &k.to_string()),
+                    ),
+                );
+                new_endowed_accounts.push(
+                    //sr25519::Public::from_string("5FhHcB7yXnJzQkhjm8DeEgjqkexW1DWUeAYLnuZbovuKAqC5").into()
+                    get_account_id_from_seed::<sr25519::Public>(
+                        &("deeper_chain".to_owned()
+                            + &"i".to_owned()
+                            + &i.to_string()
+                            + &"j".to_owned()
+                            + &j.to_string()
+                            + &k.to_string()
+                            + &"server".to_owned()),
+                    ),
+                );
+            }
+        }
+    }
 
     GenesisConfig {
         frame_system: Some(SystemConfig {
