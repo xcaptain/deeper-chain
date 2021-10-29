@@ -64,34 +64,6 @@ type FullGrandpaBlockImport =
     grandpa::GrandpaBlockImport<FullBackend, Block, FullClient, FullSelectChain>;
 type LightClient = sc_service::TLightClient<Block, RuntimeApi, Executor>;
 
-/// Provide a mock duration starting at 0 in millisecond for timestamp inherent.
-/// Each call will increment timestamp by slot_duration making Aura think time has passed.
-pub struct MockTimestampInherentDataProvider;
-
-pub const INHERENT_IDENTIFIER: InherentIdentifier = *b"timstap0";
-
-thread_local!(static TIMESTAMP: RefCell<u64> = RefCell::new(0));
-
-impl ProvideInherentData for MockTimestampInherentDataProvider {
-	fn inherent_identifier(&self) -> &'static InherentIdentifier {
-		&INHERENT_IDENTIFIER
-	}
-
-	fn provide_inherent_data(
-		&self,
-		inherent_data: &mut InherentData,
-	) -> Result<(), sp_inherents::Error> {
-		TIMESTAMP.with(|x| {
-			*x.borrow_mut() += SLOT_DURATION;
-			inherent_data.put_data(INHERENT_IDENTIFIER, &*x.borrow())
-		})
-	}
-
-	fn error_to_string(&self, error: &[u8]) -> Option<String> {
-		InherentError::try_from(&INHERENT_IDENTIFIER, error).map(|e| format!("{:?}", e))
-	}
-}
-
 pub fn frontier_database_dir(config: &Configuration) -> std::path::PathBuf {
 	let config_dir = config
 		.base_path
@@ -200,7 +172,7 @@ pub fn new_partial(
 
     let import_setup = (block_import, grandpa_link, babe_link);
 
-    Ok(sc_service::PartialComponents{
+    Ok(sc_service::PartialComponents {
         client,
         backend,
         task_manager,

@@ -207,7 +207,7 @@ async function test() {
     let bob_token_before = await getTokenBalance(api, smart_contract_address, bob_storage_slot);
 
     await tokenTransfer(api, alice, smart_contract_address, input, 0, 4294967295, 1, null);
-    
+
     let alice_token_after = await getTokenBalance(api, smart_contract_address, alice_storage_slot);
     let bob_token_after = await getTokenBalance(api, smart_contract_address, bob_storage_slot);
 

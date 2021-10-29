@@ -125,7 +125,7 @@ pub mod pallet {
     impl<T: Config> Pallet<T> {
         /// Transact an Ethereum transaction.
         #[pallet::weight(<T as pallet_evm::Config>::GasWeightMapping::gas_to_weight(transaction.gas_limit.unique_saturated_into()))]
-        fn transact(origin: OriginFor<T>, transaction: ethereum::Transaction) -> DispatchResultWithPostInfo {
+        pub fn transact(origin: OriginFor<T>, transaction: ethereum::Transaction) -> DispatchResultWithPostInfo {
             ensure_none(origin)?;
 
             Self::do_transact(transaction)

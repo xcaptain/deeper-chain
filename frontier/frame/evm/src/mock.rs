@@ -16,10 +16,11 @@
 // limitations under the License.
 
 //! Test mock for unit tests and benchmarking
+use crate as pallet_evm;
 use crate::{
-    EnsureAddressNever, EnsureAddressRoot, FeeCalculator, IdentityAddressMapping,
+    EnsureAddressNever, EnsureAddressRoot, FeeCalculator, IdentityAddressMapping, GenesisAccount,
 };
-use frame_support::{parameter_types, traits::FindAuthor, ConsensusEngineId};
+use frame_support::{pallet_prelude::GenesisBuild, parameter_types, traits::FindAuthor, ConsensusEngineId};
 use sp_core::{H160, H256, U256};
 use sp_runtime::{
     generic,
@@ -27,6 +28,7 @@ use sp_runtime::{
 };
 use sp_std::prelude::*;
 use sp_std::{boxed::Box, str::FromStr};
+use std::{collections::BTreeMap};
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
@@ -37,10 +39,10 @@ frame_support::construct_runtime! {
         NodeBlock = Block,
         UncheckedExtrinsic = UncheckedExtrinsic,
     {
-        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
-        Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
-        Timestamp: pallet_timestamp::{Pallet, Call, Storage},
-        EVM: crate::{Pallet, Call, Storage, Config, Event<T>},
+        System: frame_system::{Module, Call, Config, Storage, Event<T>},
+        Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
+        Timestamp: pallet_timestamp::{Module, Call, Storage},
+        EVM: pallet_evm::{Module, Call, Storage, Config, Event<T>},
     }
 }
 
@@ -81,7 +83,7 @@ impl pallet_balances::Config for Test {
 	type MaxLocks = ();
 	type Balance = u64;
 	type DustRemoval = ();
-	type Event = ();
+	type Event = Event;
 	type ExistentialDeposit = ExistentialDeposit;
 	type AccountStore = System;
 	type WeightInfo = ();
@@ -115,7 +117,7 @@ impl FindAuthor<H160> for FindAuthorTruncated {
 	}
 }
 
-impl Config for Test {
+impl pallet_evm::Config for Test {
 	type FeeCalculator = FixedGasPrice;
 	type GasWeightMapping = ();
 
@@ -133,4 +135,41 @@ impl Config for Test {
 	type OnChargeTransaction = ();
 	type BlockHashMapping = crate::SubstrateBlockHashMapping<Self>;
 	type FindAuthor = FindAuthorTruncated;
+}
+
+pub fn new_test_ext() -> sp_io::TestExternalities {
+	let mut t = frame_system::GenesisConfig::default()
+		.build_storage::<Test>()
+		.unwrap();
+
+	let mut accounts = BTreeMap::new();
+	accounts.insert(
+		H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+		GenesisAccount {
+			nonce: U256::from(1),
+			balance: U256::from(1000000),
+			storage: Default::default(),
+			code: vec![
+				0x00, // STOP
+			],
+		},
+	);
+	accounts.insert(
+		H160::from_str("1000000000000000000000000000000000000002").unwrap(),
+		GenesisAccount {
+			nonce: U256::from(1),
+			balance: U256::from(1000000),
+			storage: Default::default(),
+			code: vec![
+				0xff, // INVALID
+			],
+		},
+	);
+
+	pallet_balances::GenesisConfig::<Test>::default()
+		.assimilate_storage(&mut t)
+		.unwrap();
+	let genesis_config = pallet_evm::GenesisConfig { accounts };
+	GenesisBuild::<Test>::assimilate_storage(&genesis_config, &mut t).unwrap();
+	t.into()
 }

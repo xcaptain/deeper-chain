@@ -16,9 +16,9 @@
 // limitations under the License.
 
 //! Test utilities
-
 use super::*;
-use crate::{Config, IntermediateStateRoot, Module};
+use crate as pallet_ethereum;
+use crate::{IntermediateStateRoot, Module};
 use ethereum::{TransactionAction, TransactionSignature};
 use frame_support::{impl_outer_origin, parameter_types, traits::FindAuthor, ConsensusEngineId};
 use pallet_evm::{AddressMapping, EnsureAddressTruncated, FeeCalculator};
@@ -158,10 +158,10 @@ impl pallet_evm::Config for Test {
 	type BlockGasLimit = BlockGasLimit;
 	type OnChargeTransaction = ();
 	type FindAuthor = FindAuthorTruncated;
-	type BlockHashMapping = crate::EthereumBlockHashMapping;
+	type BlockHashMapping = crate::EthereumBlockHashMapping<Self>;
 }
 
-impl Config for Test {
+impl pallet_ethereum::Config for Test {
 	type Event = ();
 	type StateRoot = IntermediateStateRoot;
 }

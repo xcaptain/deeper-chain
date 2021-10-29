@@ -121,7 +121,7 @@ pub mod pallet {
         type Currency: Currency<Self::AccountId>;
 
         /// The overarching event type.
-	type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
+        type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
         /// Precompiles associated with this EVM engine.
         type Precompiles: PrecompileSet;
         /// Chain ID of EVM.
@@ -151,7 +151,7 @@ pub mod pallet {
     #[pallet::call]
     impl<T: Config> Pallet<T> {
         /// Withdraw balance from EVM into currency/balances module.
-	#[pallet::weight(0)]
+        #[pallet::weight(0)]
         fn withdraw(origin: OriginFor<T>, address: H160, value: BalanceOf<T>) -> DispatchResultWithPostInfo {
             let destination = T::WithdrawOrigin::ensure_address_origin(&address, origin)?;
             let address_account_id = T::AddressMapping::into_account_id(address);
@@ -167,8 +167,8 @@ pub mod pallet {
         }
 
         /// Issue an EVM call operation. This is similar to a message call transaction in Ethereum.
-	#[pallet::weight(T::GasWeightMapping::gas_to_weight(*gas_limit))]
-        fn call(
+        #[pallet::weight(T::GasWeightMapping::gas_to_weight(*gas_limit))]
+        pub fn call(
             origin: OriginFor<T>,
             source: H160,
             target: H160,
@@ -209,7 +209,7 @@ pub mod pallet {
         /// Issue an EVM create operation. This is similar to a contract creation transaction in
         /// Ethereum.
         #[pallet::weight(T::GasWeightMapping::gas_to_weight(*gas_limit))]
-        fn create(
+        pub fn create(
             origin: OriginFor<T>,
             source: H160,
             init: Vec<u8>,
@@ -255,7 +255,7 @@ pub mod pallet {
 
         /// Issue an EVM create2 operation.
         #[pallet::weight(T::GasWeightMapping::gas_to_weight(*gas_limit))]
-        fn create2(
+        pub fn create2(
             origin: OriginFor<T>,
             source: H160,
             init: Vec<u8>,

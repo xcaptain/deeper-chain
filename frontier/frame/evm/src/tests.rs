@@ -15,54 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![cfg(test)]
-
 use super::*;
 use crate::mock::*;
 
 use frame_support::assert_ok;
-use std::{collections::BTreeMap, str::FromStr};
-
-type Balances = pallet_balances::Module<Test>;
-type EVM = Module<Test>;
-
-pub fn new_test_ext() -> sp_io::TestExternalities {
-	let mut t = frame_system::GenesisConfig::default()
-		.build_storage::<Test>()
-		.unwrap();
-
-	let mut accounts = BTreeMap::new();
-	accounts.insert(
-		H160::from_str("1000000000000000000000000000000000000001").unwrap(),
-		GenesisAccount {
-			nonce: U256::from(1),
-			balance: U256::from(1000000),
-			storage: Default::default(),
-			code: vec![
-				0x00, // STOP
-			],
-		},
-	);
-	accounts.insert(
-		H160::from_str("1000000000000000000000000000000000000002").unwrap(),
-		GenesisAccount {
-			nonce: U256::from(1),
-			balance: U256::from(1000000),
-			storage: Default::default(),
-			code: vec![
-				0xff, // INVALID
-			],
-		},
-	);
-
-	pallet_balances::GenesisConfig::<Test>::default()
-		.assimilate_storage(&mut t)
-		.unwrap();
-	GenesisConfig { accounts }
-		.assimilate_storage::<Test>(&mut t)
-		.unwrap();
-	t.into()
-}
+use std::{str::FromStr};
 
 #[test]
 fn fail_call_return_ok() {
