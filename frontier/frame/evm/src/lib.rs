@@ -152,7 +152,7 @@ pub mod pallet {
     impl<T: Config> Pallet<T> {
         /// Withdraw balance from EVM into currency/balances module.
         #[pallet::weight(0)]
-        fn withdraw(origin: OriginFor<T>, address: H160, value: BalanceOf<T>) -> DispatchResultWithPostInfo {
+        pub fn withdraw(origin: OriginFor<T>, address: H160, value: BalanceOf<T>) -> DispatchResultWithPostInfo {
             let destination = T::WithdrawOrigin::ensure_address_origin(&address, origin)?;
             let address_account_id = T::AddressMapping::into_account_id(address);
 
