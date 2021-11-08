@@ -85,9 +85,25 @@ async function test() {
     let storage = await getStorageAt(contract_addr);
     let code = await getCode(contract_addr);
 
+    let gas = await estimateGas(alice_addr, contract_addr, '0xa9059cbb0000000000000000000000008eaf04151687736326c9fea17e25fc528761369300000000000000000000000000000000000000000000000000000000000000dd');
+
+    let alice_token_balance = await balanceOf(alice_addr);
+
+    let alice_token_balance1 = await call(contract_addr, "0x70a08231000000000000000000000000d43593c715fdd31c61141abd04a99fd6822c8558");
+
+    let submit_ret = await submitWork(
+        "0x0000000000000001",
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000"
+    );
+    if (submit_ret != false) {
+	console.error("submitWork should return false");
+    }
+
+    let work = await getWork();
+
     /*
     let log = await getLogs(tx);
-    let work = await getWork(address);
     */
 }
 
@@ -267,37 +283,59 @@ async function getCode(address, defaultBlock=web3.eth.defaultBlock) {
     return code;
 }
 
-/*
-async function call(to, data) {
-    web3.eth.call({
-        to: to,
-        data: data,
-    })
-    .then(console.log);
+async function balanceOf(address) {
+    const abi = require('./my_token.json');
+    let contract = new web3.eth.Contract(abi, contract_addr);
+    const balance = await contract.methods.balanceOf(address).call((err, result) => { return result; });
+    console.log("balance: " + balance);
+    return balance;
 }
 
-async function estimateGas(to, data) {
-    web3.eth.estimateGas({
+async function call(to, data) {
+    let result = await web3.eth.call({
+        to: to, // contract address
+        data: data
+    });
+    console.log("call return: " + result);
+    return result;
+}
+
+async function estimateGas(from, to, data) {
+    let gas = await web3.eth.estimateGas({
+        from: from,
         to: to,
         data: data
-    })
-    .then(console_log);
+    });
+    console.log("estimate gas: " + gas);
+    return gas;
 }
 
+async function submitWork(nonce, powHash, digest) {
+    let result = await web3.eth.submitWork(
+        nonce,
+        powHash,
+        digest,
+    );
+    console.log("submit work: " + result);
+    return result;
+}
+
+async function getWork() {
+    const work = await web3.eth.getWork();
+    console.log("work: " + work);
+    return work;
+}
+
+// Not supported
+async function submitHashrate() {
+}
+
+/*
 async function getLogs(filter) {
     const log = await web3.eth.getPastLogs(filter);
     console.log("log: " + log);
     return log;
 }
-
-async function getWork() {
-    const work = await web3.eth.getWork();
-    console.log(work);
-    return work;
-}
-
-eth_submitWork
-eth_submitHashrate
 
 eth_newFilter
 eth_newBlockFilter
@@ -305,5 +343,7 @@ eth_newPendingTransactionFilter
 eth_getFilterChanges
 eth_getFilterLogs
 eth_uninstallFilter
-*/
 
+eth_subscribe
+eth_unsubscribe
+*/
