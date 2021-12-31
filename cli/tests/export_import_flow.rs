@@ -20,7 +20,7 @@
 
 use assert_cmd::cargo::cargo_bin;
 use regex::Regex;
-use std::{fs, path::PathBuf, process::Command};
+use std::{fs, path::Path, process::Command};
 use tempfile::{tempdir, TempDir};
 
 pub mod common;

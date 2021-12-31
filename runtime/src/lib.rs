@@ -92,7 +92,6 @@ pub use pallet_staking::StakerStatus;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 
-type AccountPublic = <Signature as Verify>::Signer;
 use sp_io::crypto::sr25519_generate;
 use sp_runtime::traits::{IdentifyAccount, Verify};
 use sp_runtime::MultiSigner;
