@@ -282,7 +282,7 @@ fn successful_execution_with_native_equivalent_code_gives_ok() {
     t.insert(
         <frame_system::Account<Runtime>>::hashed_key_for(bob()),
         AccountInfo::<<Runtime as frame_system::Config>::Index, _> {
-            data: (0 * DOLLARS, 0u128, 0u128, 0u128),
+            data: (0, 0u128, 0u128, 0u128),
             ..Default::default()
         }
         .encode(),
@@ -338,7 +338,7 @@ fn successful_execution_with_foreign_code_gives_ok() {
     t.insert(
         <frame_system::Account<Runtime>>::hashed_key_for(bob()),
         AccountInfo::<<Runtime as frame_system::Config>::Index, _> {
-            data: (0 * DOLLARS, 0u128, 0u128, 0u128),
+            data: (0, 0u128, 0u128, 0u128),
             ..Default::default()
         }
         .encode(),
@@ -782,7 +782,7 @@ fn panic_execution_gives_error() {
     t.insert(
         <frame_system::Account<Runtime>>::hashed_key_for(alice()),
         AccountInfo::<<Runtime as frame_system::Config>::Index, _> {
-            data: (0 * DOLLARS, 0u128, 0u128, 0u128),
+            data: (0, 0u128, 0u128, 0u128),
             ..Default::default()
         }
         .encode(),
@@ -833,7 +833,7 @@ fn successful_execution_gives_ok() {
     t.insert(
         <frame_system::Account<Runtime>>::hashed_key_for(bob()),
         AccountInfo::<<Runtime as frame_system::Config>::Index, _> {
-            data: (0 * DOLLARS, 0u128, 0u128, 0u128),
+            data: (0, 0u128, 0u128, 0u128),
             ..Default::default()
         }
         .encode(),

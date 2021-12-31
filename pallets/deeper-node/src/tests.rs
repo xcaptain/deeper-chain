@@ -217,7 +217,7 @@ fn im_ever_online() {
     new_test_ext().execute_with(|| {
         assert_eq!(DeeperNode::im_ever_online(&1), false);
         assert_ok!(DeeperNode::im_online(Origin::signed(1)));
-        assert_eq!(DeeperNode::im_ever_online(&1), true);
+        assert!(DeeperNode::im_ever_online(&1));
     });
 }
 

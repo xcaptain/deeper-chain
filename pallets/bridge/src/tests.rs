@@ -132,7 +132,7 @@ fn sub2eth_burn_works() {
         message = get_message();
         let transfer = Bridge::transfers(1);
         assert_eq!(message.status, Status::Confirmed);
-        assert_eq!(transfer.open, true);
+        assert!(transfer.open);
         assert_ok!(Bridge::confirm_transfer(Origin::signed(V1), sub_message_id));
         // assert_ok!(Bridge::confirm_transfer(Origin::signed(USER1), sub_message_id));
         //BurnedMessage(Hash, AccountId, H160, u64) event emitted
@@ -236,7 +236,7 @@ fn burn_cancel_should_fail() {
         message = get_message();
         let transfer = Bridge::transfers(1);
         assert_eq!(message.status, Status::Confirmed);
-        assert_eq!(transfer.open, true);
+        assert!(transfer.open);
         assert_ok!(Bridge::confirm_transfer(Origin::signed(V1), sub_message_id));
         // assert_ok!(Bridge::confirm_transfer(Origin::signed(USER1), sub_message_id));
         //BurnedMessage(Hash, AccountId, H160, u64) event emitted
@@ -284,7 +284,7 @@ fn pause_the_bridge_should_work() {
         assert_ok!(Bridge::pause_bridge(Origin::signed(V2)));
 
         assert_eq!(Bridge::bridge_transfers_count(), 1);
-        assert_eq!(Bridge::bridge_is_operational(), true);
+        assert!(Bridge::bridge_is_operational());
         let id = Bridge::message_id_by_transfer_id(0);
         let mut message = Bridge::bridge_messages(id);
         assert_eq!(message.status, Status::Pending);
@@ -316,7 +316,7 @@ fn extrinsics_restricted_should_fail() {
 #[test]
 fn double_pause_should_fail() {
     new_test_ext().execute_with(|| {
-        assert_eq!(Bridge::bridge_is_operational(), true);
+        assert!(Bridge::bridge_is_operational());
         assert_ok!(Bridge::pause_bridge(Origin::signed(V2)));
         assert_ok!(Bridge::pause_bridge(Origin::signed(V1)));
         assert_eq!(Bridge::bridge_is_operational(), false);
@@ -329,20 +329,20 @@ fn double_pause_should_fail() {
 #[test]
 fn pause_and_resume_the_bridge_should_work() {
     new_test_ext().execute_with(|| {
-        assert_eq!(Bridge::bridge_is_operational(), true);
+        assert!(Bridge::bridge_is_operational());
         assert_ok!(Bridge::pause_bridge(Origin::signed(V2)));
         assert_ok!(Bridge::pause_bridge(Origin::signed(V1)));
         assert_eq!(Bridge::bridge_is_operational(), false);
         assert_ok!(Bridge::resume_bridge(Origin::signed(V1)));
         assert_ok!(Bridge::resume_bridge(Origin::signed(V2)));
-        assert_eq!(Bridge::bridge_is_operational(), true);
+        assert!(Bridge::bridge_is_operational());
     })
 }
 
 #[test]
 fn double_vote_should_fail() {
     new_test_ext().execute_with(|| {
-        assert_eq!(Bridge::bridge_is_operational(), true);
+        assert!(Bridge::bridge_is_operational());
         assert_ok!(Bridge::pause_bridge(Origin::signed(V2)));
         assert_noop!(
             Bridge::pause_bridge(Origin::signed(V2)),

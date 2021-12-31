@@ -150,7 +150,7 @@ benchmarks! {
 
         Bridge::<T>::pause_bridge(RawOrigin::Signed(validator1).into())?;
         assert_eq!(Bridge::<T>::bridge_transfers_count(), 1);
-        assert_eq!(Bridge::<T>::bridge_is_operational(), true);
+        assert!(Bridge::<T>::bridge_is_operational());
         let id = Bridge::<T>::message_id_by_transfer_id(0);
         let message = Bridge::<T>::bridge_messages(id);
         assert_eq!(message.status, Status::Pending);
@@ -165,7 +165,7 @@ benchmarks! {
         let validator1 = create_funded_user::<T>("user",USER_SEED, 100);
         let validator2 = create_funded_user::<T>("user",USER_SEED+1, 100);
 
-        assert_eq!(Bridge::<T>::bridge_is_operational(), true);
+        assert!(Bridge::<T>::bridge_is_operational());
         Bridge::<T>::pause_bridge(RawOrigin::Signed(validator1.clone()).into())?;
         Bridge::<T>::pause_bridge(RawOrigin::Signed(validator2.clone()).into())?;
         assert_eq!(Bridge::<T>::bridge_is_operational(), false);
@@ -173,7 +173,7 @@ benchmarks! {
         Bridge::<T>::resume_bridge(RawOrigin::Signed(validator1).into())?;
     }: _(RawOrigin::Signed(validator2))
     verify {
-        assert_eq!(Bridge::<T>::bridge_is_operational(), true);
+        assert!(Bridge::<T>::bridge_is_operational());
     }
 
     confirm_transfer {
@@ -199,7 +199,7 @@ benchmarks! {
         message = Bridge::<T>::messages(sub_message_id);
         assert_eq!(message.status, Status::Confirmed);
         let transfer = Bridge::<T>::transfers(1);
-        assert_eq!(transfer.open, true);
+        assert!(transfer.open);
     }: _(RawOrigin::Signed(validator4), sub_message_id)
     verify {
         assert_eq!(T::Currency::free_balance(&user), T::Currency::minimum_balance() * 51u32.into());

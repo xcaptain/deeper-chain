@@ -439,7 +439,7 @@ mod tests {
     fn set_is_active_dispatchable() {
         let base_fee = U256::from(1_000_000_000);
         new_test_ext(base_fee).execute_with(|| {
-            assert_eq!(BaseFee::is_active(), true);
+            assert!(BaseFee::is_active());
             assert_ok!(BaseFee::set_is_active(Origin::root(), false));
             assert_eq!(BaseFee::is_active(), false);
         });

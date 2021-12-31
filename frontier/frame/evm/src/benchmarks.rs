@@ -90,7 +90,7 @@ benchmarks! {
             vec![],
             T::config(),
         );
-        assert_eq!(create_runner_results.is_ok(), true, "create() failed");
+        assert!(create_runner_results.is_ok(), "create() failed");
 
         // derive the resulting contract address from our create
         let mut rlp = RlpStream::new_list(2);
@@ -121,7 +121,7 @@ benchmarks! {
             vec![],
             T::config(),
         );
-        assert_eq!(call_runner_results.is_ok(), true, "call() failed");
+        assert!(call_runner_results.is_ok(), true, "call() failed");
     }
 }
 

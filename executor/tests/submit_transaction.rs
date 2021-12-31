@@ -289,6 +289,6 @@ fn submitted_transaction_should_be_valid() {
         assert_eq!(res.requires, Vec::<TransactionTag>::new());
         assert_eq!(res.provides, vec![(address, 0).encode()]);
         assert_eq!(res.longevity, 2047);
-        assert_eq!(res.propagate, true);
+        assert!(res.propagate);
     });
 }
