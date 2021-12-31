@@ -214,7 +214,7 @@ pub mod pallet {
             };
             if !Self::take_from_account(&client, lock_amount) {
                 error!("Not enough free balance to open channel");
-                return Err(Error::<T>::NotEnoughBalance.into())
+                return Err(Error::<T>::NotEnoughBalance.into());
             }
             Channel::<T>::insert(&client, &server, chan);
             if TotalMicropaymentChannelBalance::<T>::contains_key(&client) {
@@ -333,7 +333,7 @@ pub mod pallet {
             );
             if !Self::take_from_account(&client, amount) {
                 error!("Not enough free balance to add into channel");
-                return Err(Error::<T>::NotEnoughBalance.into())
+                return Err(Error::<T>::NotEnoughBalance.into());
             }
             Channel::<T>::mutate(&client, &server, |c| {
                 (*c).balance += amount;
@@ -385,7 +385,7 @@ pub mod pallet {
             if SessionId::<T>::contains_key((&client, &server))
                 && session_id != Self::session_id((&client, &server)).unwrap_or(0) + 1
             {
-                return Err(Error::<T>::SessionError.into())
+                return Err(Error::<T>::SessionError.into());
             }
             Self::verify_signature(&client, &server, chan.nonce, session_id, amount, &signature)?;
             SessionId::<T>::insert((&client, &server), session_id); // mark session_id as used
@@ -407,13 +407,9 @@ pub mod pallet {
                 // no balance in channel now, just close it
                 Self::_close_channel(&client, &server);
                 let end_block = <frame_system::Pallet<T>>::block_number();
-                Self::deposit_event(Event::ChannelClosed(
-                    client,
-                    server,
-                    end_block,
-                ));
+                Self::deposit_event(Event::ChannelClosed(client, server, end_block));
                 error!("Channel not enough balance");
-                return Err(Error::<T>::NotEnoughBalance.into())
+                return Err(Error::<T>::NotEnoughBalance.into());
             }
 
             chan.balance -= amount;
@@ -486,7 +482,7 @@ pub mod pallet {
             data.extend_from_slice(&nonce.to_be_bytes());
             data.extend_from_slice(&session_id.to_be_bytes());
             data.extend_from_slice(&amount.encode());
-            
+
             sp_io::hashing::blake2_256(&data)
         }
 

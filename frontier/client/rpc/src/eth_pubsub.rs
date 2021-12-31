@@ -252,53 +252,47 @@ where
         match kind {
             Kind::Logs => {
                 self.subscriptions.add(subscriber, |sink| {
-                    let stream =
-                        client
-                            .import_notification_stream()
-                            .filter_map(move |notification| {
-                                if notification.is_new_best {
-                                    let id = BlockId::Hash(notification.hash);
+                    let stream = client
+                        .import_notification_stream()
+                        .filter_map(move |notification| {
+                            if notification.is_new_best {
+                                let id = BlockId::Hash(notification.hash);
 
-                                    let schema = frontier_backend_client::onchain_storage_schema::<
-                                        B,
-                                        C,
-                                        BE,
-                                    >(
-                                        client.as_ref(), id
-                                    );
-                                    let handler = overrides
-                                        .schemas
-                                        .get(&schema)
-                                        .unwrap_or(&overrides.fallback);
+                                let schema = frontier_backend_client::onchain_storage_schema::<
+                                    B,
+                                    C,
+                                    BE,
+                                >(client.as_ref(), id);
+                                let handler = overrides
+                                    .schemas
+                                    .get(&schema)
+                                    .unwrap_or(&overrides.fallback);
 
-                                    let block = handler.current_block(&id);
-                                    let receipts = handler.current_receipts(&id);
+                                let block = handler.current_block(&id);
+                                let receipts = handler.current_receipts(&id);
 
-                                    match (receipts, block) {
-                                        (Some(receipts), Some(block)) => {
-                                            futures::future::ready(Some((block, receipts)))
-                                        }
-                                        _ => futures::future::ready(None),
+                                match (receipts, block) {
+                                    (Some(receipts), Some(block)) => {
+                                        futures::future::ready(Some((block, receipts)))
                                     }
-                                } else {
-                                    futures::future::ready(None)
+                                    _ => futures::future::ready(None),
                                 }
-                            })
-                            .flat_map(move |(block, receipts)| {
-                                futures::stream::iter(SubscriptionResult::new().logs(
-                                    block,
-                                    receipts,
-                                    &filtered_params,
-                                ))
-                            })
-                            .map(|x| {
-                                Ok::<
-                                    Result<PubSubResult, jsonrpc_core::types::error::Error>,
-                                    (),
-                                >(Ok(PubSubResult::Log(
-                                    Box::new(x),
-                                )))
-                            });
+                            } else {
+                                futures::future::ready(None)
+                            }
+                        })
+                        .flat_map(move |(block, receipts)| {
+                            futures::stream::iter(SubscriptionResult::new().logs(
+                                block,
+                                receipts,
+                                &filtered_params,
+                            ))
+                        })
+                        .map(|x| {
+                            Ok::<Result<PubSubResult, jsonrpc_core::types::error::Error>, ()>(Ok(
+                                PubSubResult::Log(Box::new(x)),
+                            ))
+                        });
                     stream
                         .forward(
                             sink.sink_map_err(|e| warn!("Error sending notifications: {:?}", e)),
@@ -330,9 +324,7 @@ where
                                 futures::future::ready(None)
                             }
                         })
-                        .map(|block| {
-                            Ok::<_, ()>(Ok(SubscriptionResult::new().new_heads(block)))
-                        });
+                        .map(|block| Ok::<_, ()>(Ok(SubscriptionResult::new().new_heads(block))));
                     stream
                         .forward(
                             sink.sink_map_err(|e| warn!("Error sending notifications: {:?}", e)),
@@ -344,38 +336,34 @@ where
                 use sc_transaction_pool_api::InPoolTransaction;
 
                 self.subscriptions.add(subscriber, move |sink| {
-                    let stream =
-                        pool.import_notification_stream()
-                            .filter_map(move |txhash| {
-                                if let Some(xt) = pool.ready_transaction(&txhash) {
-                                    let best_block: BlockId<B> =
-                                        BlockId::Hash(client.info().best_hash);
-                                    let res = match client
-                                        .runtime_api()
-                                        .extrinsic_filter(&best_block, vec![xt.data().clone()])
-                                    {
-                                        Ok(txs) => {
-                                            if txs.len() == 1 {
-                                                Some(txs[0].clone())
-                                            } else {
-                                                None
-                                            }
+                    let stream = pool
+                        .import_notification_stream()
+                        .filter_map(move |txhash| {
+                            if let Some(xt) = pool.ready_transaction(&txhash) {
+                                let best_block: BlockId<B> = BlockId::Hash(client.info().best_hash);
+                                let res = match client
+                                    .runtime_api()
+                                    .extrinsic_filter(&best_block, vec![xt.data().clone()])
+                                {
+                                    Ok(txs) => {
+                                        if txs.len() == 1 {
+                                            Some(txs[0].clone())
+                                        } else {
+                                            None
                                         }
-                                        _ => None,
-                                    };
-                                    futures::future::ready(res)
-                                } else {
-                                    futures::future::ready(None)
-                                }
-                            })
-                            .map(|transaction| {
-                                Ok::<
-                                    Result<PubSubResult, jsonrpc_core::types::error::Error>,
-                                    (),
-                                >(Ok(
-                                    PubSubResult::TransactionHash(transaction.hash()),
-                                ))
-                            });
+                                    }
+                                    _ => None,
+                                };
+                                futures::future::ready(res)
+                            } else {
+                                futures::future::ready(None)
+                            }
+                        })
+                        .map(|transaction| {
+                            Ok::<Result<PubSubResult, jsonrpc_core::types::error::Error>, ()>(Ok(
+                                PubSubResult::TransactionHash(transaction.hash()),
+                            ))
+                        });
                     stream
                         .forward(
                             sink.sink_map_err(|e| warn!("Error sending notifications: {:?}", e)),
@@ -386,26 +374,22 @@ where
             Kind::Syncing => {
                 self.subscriptions.add(subscriber, |sink| {
                     let mut previous_syncing = network.is_major_syncing();
-                    let stream =
-                        client
-                            .import_notification_stream()
-                            .filter_map(move |notification| {
-                                let syncing = network.is_major_syncing();
-                                if notification.is_new_best && previous_syncing != syncing {
-                                    previous_syncing = syncing;
-                                    futures::future::ready(Some(syncing))
-                                } else {
-                                    futures::future::ready(None)
-                                }
-                            })
-                            .map(|syncing| {
-                                Ok::<
-                                    Result<PubSubResult, jsonrpc_core::types::error::Error>,
-                                    (),
-                                >(Ok(
-                                    PubSubResult::SyncState(PubSubSyncStatus { syncing }),
-                                ))
-                            });
+                    let stream = client
+                        .import_notification_stream()
+                        .filter_map(move |notification| {
+                            let syncing = network.is_major_syncing();
+                            if notification.is_new_best && previous_syncing != syncing {
+                                previous_syncing = syncing;
+                                futures::future::ready(Some(syncing))
+                            } else {
+                                futures::future::ready(None)
+                            }
+                        })
+                        .map(|syncing| {
+                            Ok::<Result<PubSubResult, jsonrpc_core::types::error::Error>, ()>(Ok(
+                                PubSubResult::SyncState(PubSubSyncStatus { syncing }),
+                            ))
+                        });
                     stream
                         .forward(
                             sink.sink_map_err(|e| warn!("Error sending notifications: {:?}", e)),

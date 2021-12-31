@@ -106,12 +106,7 @@ fn main() {
                 for database_type in
                     [BenchDataBaseType::RocksDb, BenchDataBaseType::ParityDb].iter()
                 {
-                    import_benchmarks.push((
-                        profile,
-                        *size,
-                        *block_type,
-                        database_type,
-                    ));
+                    import_benchmarks.push((profile, *size, *block_type, database_type));
                 }
             }
         }

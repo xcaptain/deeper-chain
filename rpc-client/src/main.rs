@@ -33,9 +33,7 @@ fn main() -> Result<(), RpcError> {
     futures::executor::block_on(async {
         let uri = "http://localhost:9933";
 
-        http::connect(uri)
-            .and_then(remove_all_extrinsics)
-            .await
+        http::connect(uri).and_then(remove_all_extrinsics).await
     })
 }
 

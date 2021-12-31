@@ -233,13 +233,11 @@ pub mod pallet {
 
             if <DailyBlocked<T>>::contains_key(yesterday) && !is_first_day {
                 let blocked_yesterday = <DailyBlocked<T>>::get(yesterday);
-                blocked_yesterday
-                    .iter()
-                    .for_each(<DailyLimits<T>>::remove);
+                blocked_yesterday.iter().for_each(<DailyLimits<T>>::remove);
                 blocked_yesterday.iter().for_each(|a| {
                     let now = <pallet_timestamp::Pallet<T>>::get();
-                    let hash = (now, a.clone())
-                        .using_encoded(<T as frame_system::Config>::Hashing::hash);
+                    let hash =
+                        (now, a.clone()).using_encoded(<T as frame_system::Config>::Hashing::hash);
                     Self::deposit_event(Event::AccountResumedMessage(hash, a.clone(), now));
                 });
                 <DailyBlocked<T>>::remove(yesterday);
@@ -687,7 +685,6 @@ pub mod pallet {
             <Quorum<T>>::put(info.quorum);
             <ValidatorsCount<T>>::put(new_count);
             info.accounts
-                
                 .iter()
                 .for_each(|v| <Validators<T>>::insert(v, true));
             Self::update_status(info.message_id, Status::Confirmed, Kind::Validator)

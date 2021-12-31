@@ -209,10 +209,7 @@ pub mod pallet {
             country: CountryRegion,
         ) -> DispatchResultWithPostInfo {
             let sender = ensure_signed(origin)?;
-            ensure!(
-                <RegionMapInit<T>>::get(),
-                Error::<T>::InvalidRegionMap
-            );
+            ensure!(<RegionMapInit<T>>::get(), Error::<T>::InvalidRegionMap);
             ensure!(
                 <RegionMap<T>>::contains_key(&country),
                 Error::<T>::InvalidCode
@@ -360,9 +357,8 @@ pub mod pallet {
                 sender,
                 &node.country,
                 &duration,
-            )
-            {
-                return Err(Error::<T>::DoubleCountryRegistration.into())
+            ) {
+                return Err(Error::<T>::DoubleCountryRegistration.into());
             }
 
             // level 3 region registration
@@ -370,16 +366,15 @@ pub mod pallet {
             if !Self::region_list_insert(&mut level3_server_list, sender, &first_region, &duration)
             {
                 let _ = Self::country_list_remove(&mut country_server_list, sender, &node.country);
-                return Err(Error::<T>::DoubleLevel3Registration.into())
+                return Err(Error::<T>::DoubleLevel3Registration.into());
             }
 
             // level 2 region registration
             let mut level2_server_list = <ServersByRegion<T>>::get(&sec_region);
-            if !Self::region_list_insert(&mut level2_server_list, sender, &sec_region, &duration)
-            {
+            if !Self::region_list_insert(&mut level2_server_list, sender, &sec_region, &duration) {
                 let _ = Self::country_list_remove(&mut country_server_list, sender, &node.country);
                 let _ = Self::region_list_remove(&mut level3_server_list, sender, &first_region);
-                return Err(Error::<T>::DoubleLevel2Registration.into())
+                return Err(Error::<T>::DoubleLevel2Registration.into());
             }
 
             // ensure consistency

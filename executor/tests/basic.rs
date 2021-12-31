@@ -34,7 +34,6 @@ use node_runtime::{
 };
 use node_testing::keyring::*;
 
-
 pub mod common;
 use self::common::{sign, *};
 

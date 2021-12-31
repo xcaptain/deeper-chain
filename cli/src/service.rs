@@ -791,7 +791,7 @@ mod tests {
         traits::{Block as BlockT, Header as HeaderT, IdentifyAccount, Verify},
         RuntimeAppPublic,
     };
-    
+
     use std::{borrow::Cow, convert::TryInto, sync::Arc};
 
     type AccountPublic = <Signature as Verify>::Signer;
@@ -1021,13 +1021,8 @@ mod tests {
                 let signature = raw_payload.using_encoded(|payload| signer.sign(payload));
                 let (function, extra, _) = raw_payload.deconstruct();
                 index += 1;
-                GenericUncheckedExtrinsic::new_signed(
-                    function,
-                    from,
-                    signature.into(),
-                    extra,
-                )
-                .into()
+                GenericUncheckedExtrinsic::new_signed(function, from, signature.into(), extra)
+                    .into()
             },
         );
     }

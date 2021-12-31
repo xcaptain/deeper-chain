@@ -414,8 +414,7 @@ impl<T: Config> Pallet<T> {
         }
 
         let ommers = Vec::<ethereum::Header>::new();
-        let receipts_root =
-            ethereum::util::ordered_trie_root(receipts.iter().map(rlp::encode));
+        let receipts_root = ethereum::util::ordered_trie_root(receipts.iter().map(rlp::encode));
         let partial_header = ethereum::PartialHeader {
             parent_hash: Self::current_block_hash().unwrap_or_default(),
             beneficiary: pallet_evm::Pallet::<T>::find_author(),
@@ -698,7 +697,8 @@ impl<T: Config> Pallet<T> {
                     let base_fee = T::FeeCalculator::min_gas_price();
                     let priority_fee = t
                         .gas_price
-                        .checked_sub(base_fee).ok_or(DispatchError::Other("Gas price too low"))?;
+                        .checked_sub(base_fee)
+                        .ok_or(DispatchError::Other("Gas price too low"))?;
                     (
                         t.input.clone(),
                         t.value,
@@ -714,7 +714,8 @@ impl<T: Config> Pallet<T> {
                     let base_fee = T::FeeCalculator::min_gas_price();
                     let priority_fee = t
                         .gas_price
-                        .checked_sub(base_fee).ok_or(DispatchError::Other("Gas price too low"))?;
+                        .checked_sub(base_fee)
+                        .ok_or(DispatchError::Other("Gas price too low"))?;
                     let access_list: Vec<(H160, Vec<H256>)> = t
                         .access_list
                         .iter()

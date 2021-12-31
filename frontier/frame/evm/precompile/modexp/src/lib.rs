@@ -72,7 +72,6 @@ fn calculate_gas_cost(
 
     let multiplication_complexity = calculate_multiplication_complexity(base_length, mod_length);
     let iteration_count = calculate_iteration_count(exp_length, exponent);
-    
 
     max(
         MIN_GAS_COST,

@@ -188,7 +188,6 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
     }
     .assimilate_storage(&mut storage);
 
-    
     sp_io::TestExternalities::from(storage)
 }
 

@@ -968,18 +968,18 @@ pub mod pallet {
             let stash = ensure_signed(origin)?;
 
             if <Bonded<T>>::contains_key(&stash) {
-                return Err(Error::<T>::AlreadyBonded.into())
+                return Err(Error::<T>::AlreadyBonded.into());
             }
 
             let controller = T::Lookup::lookup(controller)?;
 
             if <Ledger<T>>::contains_key(&controller) {
-                return Err(Error::<T>::AlreadyPaired.into())
+                return Err(Error::<T>::AlreadyPaired.into());
             }
 
             // reject a bond which is considered to be _dust_.
             if value < T::Currency::minimum_balance() {
-                return Err(Error::<T>::InsufficientValue.into())
+                return Err(Error::<T>::InsufficientValue.into());
             }
 
             frame_system::Pallet::<T>::inc_consumers(&stash).map_err(|_| Error::<T>::BadState)?;
@@ -1315,7 +1315,7 @@ pub mod pallet {
             let old_controller = Self::bonded(&stash).ok_or(Error::<T>::NotStash)?;
             let controller = T::Lookup::lookup(controller)?;
             if <Ledger<T>>::contains_key(&controller) {
-                return Err(Error::<T>::AlreadyPaired.into())
+                return Err(Error::<T>::AlreadyPaired.into());
             }
             if controller != old_controller {
                 <Bonded<T>>::insert(&stash, &controller);
@@ -1820,10 +1820,7 @@ pub mod pallet {
                     }
                     let reward = cmp::min(remainder_mining_reward, referee_reward + poc_reward);
                     let imbalance = T::Currency::deposit_creating(&delegator, reward);
-                    Self::deposit_event(Event::DelegatorReward(
-                        delegator,
-                        imbalance.peek(),
-                    ));
+                    Self::deposit_event(Event::DelegatorReward(delegator, imbalance.peek()));
                 }
             }
 
@@ -2158,7 +2155,8 @@ impl<T: Config> pallet::Pallet<T> {
         for validator in Self::eras_validators(era) {
             let validator_reward_points = era_reward_points
                 .individual
-                .get(&validator).copied()
+                .get(&validator)
+                .copied()
                 .unwrap_or_else(Zero::zero);
             if !validator_reward_points.is_zero() {
                 let validator_total_reward_part =
@@ -2190,7 +2188,8 @@ impl<T: Config> pallet::Pallet<T> {
     ) -> Option<PositiveImbalanceOf<T>> {
         let dest = Self::payee(stash);
         match dest {
-            RewardDestination::Controller => Self::bonded(stash).map(|controller| T::Currency::deposit_creating(&controller, amount)),
+            RewardDestination::Controller => Self::bonded(stash)
+                .map(|controller| T::Currency::deposit_creating(&controller, amount)),
             RewardDestination::Stash => T::Currency::deposit_into_existing(stash, amount).ok(),
             RewardDestination::Staked => Self::bonded(stash)
                 .and_then(|c| Self::ledger(&c).map(|l| (c, l)))
@@ -2698,7 +2697,8 @@ impl<T: Config> Convert<T::AccountId, Option<Exposure<T::AccountId, BalanceOf<T>
     for ExposureOf<T>
 {
     fn convert(validator: T::AccountId) -> Option<Exposure<T::AccountId, BalanceOf<T>>> {
-        <Pallet<T>>::active_era().map(|active_era| <Pallet<T>>::eras_stakers(active_era.index, &validator))
+        <Pallet<T>>::active_era()
+            .map(|active_era| <Pallet<T>>::eras_stakers(active_era.index, &validator))
     }
 }
 
@@ -2768,7 +2768,8 @@ where
             // reverse because it's more likely to find reports from recent eras.
             match eras
                 .iter()
-                .rev().find(|&&(_, ref sesh)| sesh <= &slash_session)
+                .rev()
+                .find(|&&(_, ref sesh)| sesh <= &slash_session)
             {
                 Some(&(ref slash_era, _)) => *slash_era,
                 // before bonding period. defensive - should be filtered out.

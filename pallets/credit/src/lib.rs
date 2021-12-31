@@ -582,7 +582,6 @@ pub mod pallet {
         }
 
         fn get_credit_level(credit_score: u64) -> CreditLevel {
-            
             match credit_score {
                 0..=99 => CreditLevel::Zero,
                 100..=199 => CreditLevel::One,

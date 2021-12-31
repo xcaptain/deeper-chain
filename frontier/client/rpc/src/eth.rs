@@ -224,9 +224,9 @@ fn transaction_build(
     };
 
     // Block hash.
-    transaction.block_hash = block.as_ref().map(|block| H256::from_slice(
-            Keccak256::digest(&rlp::encode(&block.header)).as_slice(),
-        ));
+    transaction.block_hash = block
+        .as_ref()
+        .map(|block| H256::from_slice(Keccak256::digest(&rlp::encode(&block.header)).as_slice()));
     // Block number.
     transaction.block_number = block.as_ref().map(|block| block.header.number);
     // Transaction index.
@@ -261,8 +261,7 @@ fn transaction_build(
         |status| status.to,
     );
     // Creates.
-    transaction.creates = status
-        .as_ref().and_then(|status| status.contract_address);
+    transaction.creates = status.as_ref().and_then(|status| status.contract_address);
     // Public key.
     transaction.public_key = pubkey.as_ref().map(H512::from);
 
@@ -471,7 +470,10 @@ fn fee_details(
             if let Some(max_priority) = max_priority {
                 let max_fee = max_fee.unwrap_or_default();
                 if max_priority > max_fee {
-                    return Err(internal_err("Invalid input: `max_priority_fee_per_gas` greater than `max_fee_per_gas`".to_string()));
+                    return Err(internal_err(
+                        "Invalid input: `max_priority_fee_per_gas` greater than `max_fee_per_gas`"
+                            .to_string(),
+                    ));
                 }
             }
             Ok(FeeDetails {
@@ -560,8 +562,7 @@ where
     fn gas_price(&self) -> Result<U256> {
         let block = BlockId::Hash(self.client.info().best_hash);
 
-        self
-            .client
+        self.client
             .runtime_api()
             .gas_price(&block)
             .map_err(|err| internal_err(format!("fetch runtime chain id failed: {:?}", err)))
@@ -577,9 +578,7 @@ where
 
     fn block_number(&self) -> Result<U256> {
         Ok(U256::from(
-            UniqueSaturatedInto::<u128>::unique_saturated_into(
-                self.client.info().best_number,
-            ),
+            UniqueSaturatedInto::<u128>::unique_saturated_into(self.client.info().best_number),
         ))
     }
 
@@ -825,7 +824,8 @@ where
                 .schemas
                 .get(&schema)
                 .unwrap_or(&self.overrides.fallback)
-                .account_code_at(&id, address).unwrap_or_default()
+                .account_code_at(&id, address)
+                .unwrap_or_default()
                 .into());
         }
         Ok(Bytes(vec![]))
@@ -874,7 +874,9 @@ where
                 if let Ok(Some(block)) = block {
                     block.header.gas_limit
                 } else {
-                    return Box::pin(future::err(internal_err("block unavailable, cannot query gas limit".to_string())));
+                    return Box::pin(future::err(internal_err(
+                        "block unavailable, cannot query gas limit".to_string(),
+                    )));
                 }
             }
         };
@@ -935,8 +937,7 @@ where
                 .submit_one(
                     &BlockId::hash(hash),
                     TransactionSource::Local,
-                    self.convert_transaction
-                        .convert_transaction(transaction),
+                    self.convert_transaction.convert_transaction(transaction),
                 )
                 .map_ok(move |_| transaction_hash)
                 .map_err(|err| {
@@ -977,8 +978,7 @@ where
                 .submit_one(
                     &BlockId::hash(hash),
                     TransactionSource::Local,
-                    self.convert_transaction
-                        .convert_transaction(transaction),
+                    self.convert_transaction.convert_transaction(transaction),
                 )
                 .map_ok(move |_| transaction_hash)
                 .map_err(|err| {
@@ -1025,7 +1025,9 @@ where
                 if let Some(block) = block {
                     block.header.gas_limit
                 } else {
-                    return Err(internal_err("block unavailable, cannot query gas limit".to_string()));
+                    return Err(internal_err(
+                        "block unavailable, cannot query gas limit".to_string(),
+                    ));
                 }
             }
         };
@@ -1036,7 +1038,9 @@ where
         {
             api_version
         } else {
-            return Err(internal_err("failed to retrieve Runtime Api version".to_string()));
+            return Err(internal_err(
+                "failed to retrieve Runtime Api version".to_string(),
+            ));
         };
         match to {
             Some(to) => {
@@ -1079,7 +1083,9 @@ where
                     error_on_execution_failure(&info.exit_reason, &info.value)?;
                     Ok(Bytes(info.value))
                 } else {
-                    Err(internal_err("failed to retrieve Runtime Api version".to_string()))
+                    Err(internal_err(
+                        "failed to retrieve Runtime Api version".to_string(),
+                    ))
                 }
             }
             None => {
@@ -1120,7 +1126,9 @@ where
                     error_on_execution_failure(&info.exit_reason, &[])?;
                     Ok(Bytes(info.value[..].to_vec()))
                 } else {
-                    Err(internal_err("failed to retrieve Runtime Api version".to_string()))
+                    Err(internal_err(
+                        "failed to retrieve Runtime Api version".to_string(),
+                    ))
                 }
             }
         }
@@ -1330,7 +1338,9 @@ where
         {
             api_version
         } else {
-            return Err(internal_err("failed to retrieve Runtime Api version".to_string()));
+            return Err(internal_err(
+                "failed to retrieve Runtime Api version".to_string(),
+            ));
         };
 
         // Verify that the transaction succeed with highest capacity

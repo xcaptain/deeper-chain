@@ -65,9 +65,7 @@ impl OneSessionHandler<AccountId> for OtherSessionHandler {
         I: Iterator<Item = (&'a AccountId, Self::Key)>,
         AccountId: 'a,
     {
-        SESSION.with(|x| {
-            *x.borrow_mut() = (validators.map(|x| *x.0).collect(), HashSet::new())
-        });
+        SESSION.with(|x| *x.borrow_mut() = (validators.map(|x| *x.0).collect(), HashSet::new()));
     }
 
     fn on_disabled(validator_index: u32) {
