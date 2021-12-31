@@ -873,7 +873,7 @@ where
         let signature = raw_payload.using_encoded(|payload| C::sign(payload, public))?;
         let address = Indices::unlookup(account);
         let (call, extra, _) = raw_payload.deconstruct();
-        Some((call, (address, signature.into(), extra)))
+        Some((call, (address, signature, extra)))
     }
 }
 
@@ -1092,9 +1092,9 @@ pub struct DefaultAccountCreator;
 
 impl pallet_micropayment::AccountCreator<AccountId> for DefaultAccountCreator {
     fn create_account(s: &'static str) -> AccountId {
-        let seed = "//".to_owned() + &s;
+        let seed = "//".to_owned() + s;
         let signer = create_sr25519_pubkey(seed.as_bytes().to_vec());
-        let account_id: AccountId = AccountPublic::from(signer).into_account();
+        let account_id: AccountId = signer.into_account();
         account_id
     }
 }

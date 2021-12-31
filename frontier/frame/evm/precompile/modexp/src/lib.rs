@@ -72,12 +72,12 @@ fn calculate_gas_cost(
 
     let multiplication_complexity = calculate_multiplication_complexity(base_length, mod_length);
     let iteration_count = calculate_iteration_count(exp_length, exponent);
-    let gas = max(
+    
+
+    max(
         MIN_GAS_COST,
         multiplication_complexity * iteration_count / 3,
-    );
-
-    gas
+    )
 }
 
 // ModExp expects the following as inputs:

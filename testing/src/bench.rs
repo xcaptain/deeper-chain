@@ -286,8 +286,7 @@ impl<'a> BlockContentIterator<'a> {
         let genesis_hash = client
             .block_hash(Zero::zero())
             .expect("Database error?")
-            .expect("Genesis block always exists; qed")
-            .into();
+            .expect("Genesis block always exists; qed");
 
         BlockContentIterator {
             iteration: 0,
@@ -612,8 +611,7 @@ impl BenchKeyring {
                         } else {
                             key.sign(b)
                         }
-                    })
-                    .into();
+                    });
                 UncheckedExtrinsic::new_signed(
                     payload.0,
                     sp_runtime::MultiAddress::Id(signed),

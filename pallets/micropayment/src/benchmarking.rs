@@ -47,8 +47,8 @@ benchmarks! {
         assert_eq!(
             Micropayment::<T>::channel(&client, &server),
             ChannelOf::<T> {
-                client: client,
-                server: server,
+                client,
+                server,
                 balance: amount,
                 nonce: 0,
                 opened: 1u32.into(),
@@ -171,7 +171,7 @@ benchmarks! {
             Micropayment::<T>::channel(&client, &server),
             ChannelOf::<T> {
                 client: client.clone(),
-                server: server.clone(),
+                server: server,
                 balance: balance_of_chain,
                 nonce: 0,
                 opened: 0u32.into(),

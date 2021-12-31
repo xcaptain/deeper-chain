@@ -208,13 +208,13 @@ pub mod pallet {
                 client: client.clone(),
                 server: server.clone(),
                 balance: lock_amount,
-                nonce: nonce.clone(),
-                opened: start_block.clone(),
-                expiration: expiration.clone(),
+                nonce,
+                opened: start_block,
+                expiration,
             };
             if !Self::take_from_account(&client, lock_amount) {
                 error!("Not enough free balance to open channel");
-                Err(Error::<T>::NotEnoughBalance)?
+                return Err(Error::<T>::NotEnoughBalance.into())
             }
             Channel::<T>::insert(&client, &server, chan);
             if TotalMicropaymentChannelBalance::<T>::contains_key(&client) {
@@ -262,7 +262,7 @@ pub mod pallet {
                 Self::_close_channel(&account_id, &signer);
                 let end_block = <frame_system::Pallet<T>>::block_number();
                 Self::deposit_event(Event::ChannelClosed(account_id, signer, end_block));
-                return Ok(().into());
+                Ok(().into())
             } else if Channel::<T>::contains_key(&signer, &account_id) {
                 // signer is client
                 let chan = Channel::<T>::get(&signer, &account_id);
@@ -284,12 +284,12 @@ pub mod pallet {
                     Self::_close_channel(&signer, &account_id);
                     let end_block = current_block;
                     Self::deposit_event(Event::ChannelClosed(signer, account_id, end_block));
-                    return Ok(().into());
+                    Ok(().into())
                 } else {
-                    Err(Error::<T>::UnexpiredChannelCannotBeClosedBySender)?
+                    Err(Error::<T>::UnexpiredChannelCannotBeClosedBySender.into())
                 }
             } else {
-                Err(Error::<T>::ChannelNotExist)?
+                Err(Error::<T>::ChannelNotExist.into())
             }
         }
 
@@ -333,7 +333,7 @@ pub mod pallet {
             );
             if !Self::take_from_account(&client, amount) {
                 error!("Not enough free balance to add into channel");
-                Err(Error::<T>::NotEnoughBalance)?
+                return Err(Error::<T>::NotEnoughBalance.into())
             }
             Channel::<T>::mutate(&client, &server, |c| {
                 (*c).balance += amount;
@@ -385,7 +385,7 @@ pub mod pallet {
             if SessionId::<T>::contains_key((&client, &server))
                 && session_id != Self::session_id((&client, &server)).unwrap_or(0) + 1
             {
-                Err(Error::<T>::SessionError)?
+                return Err(Error::<T>::SessionError.into())
             }
             Self::verify_signature(&client, &server, chan.nonce, session_id, amount, &signature)?;
             SessionId::<T>::insert((&client, &server), session_id); // mark session_id as used
@@ -408,12 +408,12 @@ pub mod pallet {
                 Self::_close_channel(&client, &server);
                 let end_block = <frame_system::Pallet<T>>::block_number();
                 Self::deposit_event(Event::ChannelClosed(
-                    client.clone(),
-                    server.clone(),
+                    client,
+                    server,
                     end_block,
                 ));
                 error!("Channel not enough balance");
-                Err(Error::<T>::NotEnoughBalance)?
+                return Err(Error::<T>::NotEnoughBalance.into())
             }
 
             chan.balance -= amount;
@@ -463,7 +463,7 @@ pub mod pallet {
             let pub_key = sr25519::Public::from_raw(pk);
 
             let mut sig = [0u8; 64];
-            sig.copy_from_slice(&signature);
+            sig.copy_from_slice(signature);
             let sig = sr25519::Signature::from_slice(&sig);
 
             let msg = Self::construct_byte_array_and_hash(server, nonce, session_id, amount);
@@ -486,8 +486,8 @@ pub mod pallet {
             data.extend_from_slice(&nonce.to_be_bytes());
             data.extend_from_slice(&session_id.to_be_bytes());
             data.extend_from_slice(&amount.encode());
-            let hash = sp_io::hashing::blake2_256(&data);
-            hash
+            
+            sp_io::hashing::blake2_256(&data)
         }
 
         /// Deduct the amount from the account free balance
@@ -500,7 +500,7 @@ pub mod pallet {
                 } else {
                     balance.free -= amount;
                 }
-                return amount;
+                amount
             });
             match result {
                 Ok(actual_amount) => actual_amount == amount,

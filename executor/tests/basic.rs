@@ -33,7 +33,7 @@ use node_runtime::{
     TransactionPayment, UncheckedExtrinsic,
 };
 use node_testing::keyring::*;
-use wat;
+
 
 pub mod common;
 use self::common::{sign, *};
@@ -140,7 +140,7 @@ fn blocks() -> ((Vec<u8>, Hash), (Vec<u8>, Hash)) {
     let block2 = construct_block(
         &mut t,
         2,
-        block1.1.clone(),
+        block1.1,
         vec![
             CheckedExtrinsic {
                 signed: CheckedSignature::Unsigned,
@@ -423,8 +423,8 @@ fn full_native_block_import_works() {
             EventRecord {
                 phase: Phase::ApplyExtrinsic(1),
                 event: Event::Balances(pallet_balances::Event::Transfer(
-                    alice().into(),
-                    bob().into(),
+                    alice(),
+                    bob(),
                     69 * DOLLARS,
                 )),
                 topics: vec![],
@@ -478,8 +478,8 @@ fn full_native_block_import_works() {
             EventRecord {
                 phase: Phase::ApplyExtrinsic(1),
                 event: Event::Balances(pallet_balances::Event::Transfer(
-                    bob().into(),
-                    alice().into(),
+                    bob(),
+                    alice(),
                     5 * DOLLARS,
                 )),
                 topics: vec![],
@@ -500,8 +500,8 @@ fn full_native_block_import_works() {
             EventRecord {
                 phase: Phase::ApplyExtrinsic(2),
                 event: Event::Balances(pallet_balances::Event::Transfer(
-                    alice().into(),
-                    bob().into(),
+                    alice(),
+                    bob(),
                     15 * DOLLARS,
                 )),
                 topics: vec![],

@@ -77,7 +77,7 @@ use scale_info::TypeInfo;
 const STAKING_ID: LockIdentifier = *b"staking ";
 pub const MAX_UNLOCKING_CHUNKS: usize = 32;
 
-pub(crate) const LOG_TARGET: &'static str = "staking";
+pub(crate) const LOG_TARGET: &str = "staking";
 
 // syntactic sugar for logging.
 #[macro_export]
@@ -907,7 +907,7 @@ pub mod pallet {
             StorageVersion::<T>::put(Releases::V5_0_0);
             for &(ref stash, ref controller, balance, ref status) in &self.stakers {
                 assert!(
-                    T::Currency::free_balance(&stash) >= balance,
+                    T::Currency::free_balance(stash) >= balance,
                     "Stash does not have enough balance to bond."
                 );
                 let _ = <Pallet<T>>::bond(
@@ -968,18 +968,18 @@ pub mod pallet {
             let stash = ensure_signed(origin)?;
 
             if <Bonded<T>>::contains_key(&stash) {
-                Err(Error::<T>::AlreadyBonded)?
+                return Err(Error::<T>::AlreadyBonded.into())
             }
 
             let controller = T::Lookup::lookup(controller)?;
 
             if <Ledger<T>>::contains_key(&controller) {
-                Err(Error::<T>::AlreadyPaired)?
+                return Err(Error::<T>::AlreadyPaired.into())
             }
 
             // reject a bond which is considered to be _dust_.
             if value < T::Currency::minimum_balance() {
-                Err(Error::<T>::InsufficientValue)?
+                return Err(Error::<T>::InsufficientValue.into())
             }
 
             frame_system::Pallet::<T>::inc_consumers(&stash).map_err(|_| Error::<T>::BadState)?;
@@ -1315,7 +1315,7 @@ pub mod pallet {
             let old_controller = Self::bonded(&stash).ok_or(Error::<T>::NotStash)?;
             let controller = T::Lookup::lookup(controller)?;
             if <Ledger<T>>::contains_key(&controller) {
-                Err(Error::<T>::AlreadyPaired)?
+                return Err(Error::<T>::AlreadyPaired.into())
             }
             if controller != old_controller {
                 <Bonded<T>>::insert(&stash, &controller);
@@ -1630,8 +1630,8 @@ pub mod pallet {
             ensure_root(origin)?;
             if let Some(current_era) = Self::current_era() {
                 HistoryDepth::<T>::mutate(|history_depth| {
-                    let last_kept = current_era.checked_sub(*history_depth).unwrap_or(0);
-                    let new_last_kept = current_era.checked_sub(new_history_depth).unwrap_or(0);
+                    let last_kept = current_era.saturating_sub(*history_depth);
+                    let new_last_kept = current_era.saturating_sub(new_history_depth);
                     for era_index in last_kept..new_last_kept {
                         Self::clear_era_information(era_index);
                     }
@@ -1812,16 +1812,16 @@ pub mod pallet {
                         let reward_data = RewardData::<BalanceOf<T>> {
                             total_referee_reward,
                             received_referee_reward: referee_reward,
-                            referee_reward: referee_reward,
+                            referee_reward,
                             received_pocr_reward: poc_reward,
-                            poc_reward: poc_reward,
+                            poc_reward,
                         };
                         Reward::<T>::insert(&delegator, reward_data);
                     }
                     let reward = cmp::min(remainder_mining_reward, referee_reward + poc_reward);
                     let imbalance = T::Currency::deposit_creating(&delegator, reward);
                     Self::deposit_event(Event::DelegatorReward(
-                        delegator.clone(),
+                        delegator,
                         imbalance.peek(),
                     ));
                 }
@@ -2041,9 +2041,7 @@ impl<T: Config> pallet::Pallet<T> {
                     0
                 });
 
-            let era_length = session_index
-                .checked_sub(current_era_start_session_index)
-                .unwrap_or(0); // Must never happen.
+            let era_length = session_index.saturating_sub(current_era_start_session_index); // Must never happen.
 
             match ForceEra::<T>::get() {
                 Forcing::ForceNew => ForceEra::<T>::kill(),
@@ -2160,9 +2158,8 @@ impl<T: Config> pallet::Pallet<T> {
         for validator in Self::eras_validators(era) {
             let validator_reward_points = era_reward_points
                 .individual
-                .get(&validator)
-                .map(|points| *points)
-                .unwrap_or_else(|| Zero::zero());
+                .get(&validator).copied()
+                .unwrap_or_else(Zero::zero);
             if !validator_reward_points.is_zero() {
                 let validator_total_reward_part =
                     Perbill::from_rational(validator_reward_points, total_reward_points);
@@ -2193,8 +2190,7 @@ impl<T: Config> pallet::Pallet<T> {
     ) -> Option<PositiveImbalanceOf<T>> {
         let dest = Self::payee(stash);
         match dest {
-            RewardDestination::Controller => Self::bonded(stash)
-                .and_then(|controller| Some(T::Currency::deposit_creating(&controller, amount))),
+            RewardDestination::Controller => Self::bonded(stash).map(|controller| T::Currency::deposit_creating(&controller, amount)),
             RewardDestination::Stash => T::Currency::deposit_into_existing(stash, amount).ok(),
             RewardDestination::Staked => Self::bonded(stash)
                 .and_then(|c| Self::ledger(&c).map(|l| (c, l)))
@@ -2298,9 +2294,9 @@ impl<T: Config> pallet::Pallet<T> {
                     let reward_data = RewardData::<BalanceOf<T>> {
                         total_referee_reward,
                         received_referee_reward: referee_reward,
-                        referee_reward: referee_reward,
+                        referee_reward,
                         received_pocr_reward: poc_reward,
-                        poc_reward: poc_reward,
+                        poc_reward,
                     };
                     Reward::<T>::insert(delegator, reward_data); // 1 write
                     weight = weight.saturating_add(T::DbWeight::get().reads_writes(0, 1));
@@ -2381,11 +2377,11 @@ impl<T: Config> pallet::Pallet<T> {
     /// If the election has been successful, It passes the new set upwards.
     fn elect(current_era: EraIndex) -> Option<Vec<T::AccountId>> {
         let mut validators: Vec<(T::AccountId, u32, EraIndex)> = Validators::<T>::iter()
-            .filter(|(validator, _)| Self::trusted_validator(&validator))
+            .filter(|(validator, _)| Self::trusted_validator(validator))
             .map(|(validator, _)| {
                 let candidate_validator = Self::candidate_validators(&validator);
                 (
-                    validator.clone(),
+                    validator,
                     candidate_validator.delegators.len() as u32,
                     candidate_validator.elected_era,
                 )
@@ -2430,7 +2426,6 @@ impl<T: Config> pallet::Pallet<T> {
                     Self::candidate_validators(v)
                         .delegators
                         .into_iter()
-                        .map(|d| d)
                         .collect()
                 } else {
                     Vec::new()
@@ -2595,7 +2590,7 @@ impl<T: Config> pallet::Pallet<T> {
     }
 
     fn next_delegators_key(last_key: &Vec<u8>) -> Vec<u8> {
-        sp_io::storage::next_key(last_key).unwrap_or(Vec::<u8>::new())
+        sp_io::storage::next_key(last_key).unwrap_or_default()
     }
 
     fn get_delegator_data(next_key: &Vec<u8>) -> Option<DelegatorData<T::AccountId>> {
@@ -2703,11 +2698,7 @@ impl<T: Config> Convert<T::AccountId, Option<Exposure<T::AccountId, BalanceOf<T>
     for ExposureOf<T>
 {
     fn convert(validator: T::AccountId) -> Option<Exposure<T::AccountId, BalanceOf<T>>> {
-        if let Some(active_era) = <Pallet<T>>::active_era() {
-            Some(<Pallet<T>>::eras_stakers(active_era.index, &validator))
-        } else {
-            None
-        }
+        <Pallet<T>>::active_era().map(|active_era| <Pallet<T>>::eras_stakers(active_era.index, &validator))
     }
 }
 
@@ -2777,9 +2768,7 @@ where
             // reverse because it's more likely to find reports from recent eras.
             match eras
                 .iter()
-                .rev()
-                .filter(|&&(_, ref sesh)| sesh <= &slash_session)
-                .next()
+                .rev().find(|&&(_, ref sesh)| sesh <= &slash_session)
             {
                 Some(&(ref slash_era, _)) => *slash_era,
                 // before bonding period. defensive - should be filtered out.

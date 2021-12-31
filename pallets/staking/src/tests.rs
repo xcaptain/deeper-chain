@@ -33,13 +33,9 @@ use std::collections::HashMap;
 
 macro_rules! assert_eq_uvec {
     ( $x:expr, $y:expr $(,)? ) => {
-        if $x.len() != $y.len() {
-            panic!("vectors not equal: {:?} != {:?}", $x, $y);
-        }
+        assert!(!($x.len() != $y.len()), ..);
         $x.iter().for_each(|e| {
-            if !$y.contains(e) {
-                panic!("vectors not equal: {:?} != {:?}", $x, $y);
-            }
+            assert!($y.contains(e), ..);
         });
     };
 }
@@ -250,7 +246,7 @@ fn rewards_should_work() {
                 Balances::total_balance(&1002),
                 init_balance_1001 + 21369858941948251800
             );
-            remainder = remainder - 21369858941948251800;
+            remainder -= 21369858941948251800;
             assert_eq!(Balances::total_balance(&1001), init_balance_1002); // 1001 is not paid yet
             assert_eq!(Balances::total_balance(&1003), init_balance_1003); // 1003 is not paid yet
             assert_eq!(Staking::remainder_mining_reward().unwrap(), remainder);
@@ -267,7 +263,7 @@ fn rewards_should_work() {
                 init_balance_1002 + 21369858941948251800
             );
             assert_eq!(Balances::total_balance(&1003), init_balance_1003); // 1003 is not paid yet
-            remainder = remainder - 21369858941948251800;
+            remainder -= 21369858941948251800;
             assert_eq!(Staking::remainder_mining_reward().unwrap(), remainder);
 
             run_to_block(BLOCKS_PER_ERA + 3);
@@ -286,7 +282,7 @@ fn rewards_should_work() {
                 Balances::total_balance(&1003),
                 init_balance_1003 + 21369858941948251800
             );
-            remainder = remainder - 21369858941948251800;
+            remainder -= 21369858941948251800;
             assert_eq!(Staking::remainder_mining_reward().unwrap(), remainder);
         });
 }
@@ -322,12 +318,12 @@ fn many_delegators_rewards_should_work() {
             while i < BLOCKS_PER_ERA / 2 {
                 run_to_block(BLOCKS_PER_ERA + i);
                 // it should pay 2 delegators each block
-                remainder = remainder - 21369858941948251800 * 2;
+                remainder -= 21369858941948251800 * 2;
                 assert_eq!(Staking::remainder_mining_reward().unwrap(), remainder);
                 i += 1;
             }
             run_to_block(BLOCKS_PER_ERA + BLOCKS_PER_ERA / 2);
-            remainder = remainder - 21369858941948251800;
+            remainder -= 21369858941948251800;
             assert_eq!(Staking::remainder_mining_reward().unwrap(), remainder);
             i = BLOCKS_PER_ERA / 2 + 1;
             while i < BLOCKS_PER_ERA {
@@ -466,7 +462,7 @@ fn rewards_always_paid_in_next_era() {
                 Balances::total_balance(&1002),
                 init_balance_1002 + 21369858941948251800
             );
-            remainder = remainder - 21369858941948251800;
+            remainder -= 21369858941948251800;
             assert_eq!(Staking::remainder_mining_reward().unwrap(), remainder);
         });
 }
@@ -519,19 +515,19 @@ fn rewards_not_affected_by_others_undelegating() {
                 Balances::total_balance(&1001),
                 init_balance_1001 + 21369858941948251800
             );
-            remainder = remainder - 21369858941948251800;
+            remainder -= 21369858941948251800;
             // 1002 is paid now
             assert_eq!(
                 Balances::total_balance(&1002),
                 init_balance_1002 + 21369858941948251800
             );
-            remainder = remainder - 21369858941948251800;
+            remainder -= 21369858941948251800;
             // 1003 is paid now
             assert_eq!(
                 Balances::total_balance(&1003),
                 init_balance_1003 + 21369858941948251800
             );
-            remainder = remainder - 21369858941948251800;
+            remainder -= 21369858941948251800;
             // 1004 balance does not increase this round as it's already paid
             assert_eq!(
                 Balances::total_balance(&1004),
@@ -620,7 +616,7 @@ fn delegators_also_get_slashed() {
         // 11 goes offline
         on_offence_now(
             &[OffenceDetails {
-                offender: (11, initial_exposure.clone()),
+                offender: (11, initial_exposure),
                 reporters: vec![],
             }],
             &[slash_percent],
@@ -1509,7 +1505,7 @@ fn on_low_credit_score_removes_delegator() {
         // 21 goes offline
         on_offence_now(
             &[OffenceDetails {
-                offender: (21, initial_exposure.clone()),
+                offender: (21, initial_exposure),
                 reporters: vec![],
             }],
             &[Perbill::from_percent(5)],
@@ -2320,7 +2316,7 @@ fn remove_deferred() {
 
             on_offence_in_era(
                 &[OffenceDetails {
-                    offender: (21, exposure.clone()),
+                    offender: (21, exposure),
                     reporters: vec![],
                 }],
                 &[Perbill::from_percent(15)],
@@ -2404,7 +2400,7 @@ fn remove_multi_deferred() {
 
             on_offence_now(
                 &[OffenceDetails {
-                    offender: (69, exposure.clone()),
+                    offender: (69, exposure),
                     reporters: vec![],
                 }],
                 &[Perbill::from_percent(25)],
@@ -2471,7 +2467,7 @@ fn six_session_delay() {
             );
             assert_ne!(
                 <Staking as SessionManager<_>>::new_session(init_session + 6),
-                Some(val_set.clone())
+                Some(val_set)
             );
 
             <Staking as SessionManager<_>>::end_session(init_session);

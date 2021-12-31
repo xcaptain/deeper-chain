@@ -71,7 +71,7 @@ pub fn create_stash_controller<T: Config>(
         amount,
         destination,
     )?;
-    return Ok((stash, controller));
+    Ok((stash, controller))
 }
 
 /// Create a delegator
@@ -94,7 +94,7 @@ pub fn create_delegator<T: StakingConfig + CreditConfig>(
         delegator.clone(),
         credit_data,
     );
-    return Ok(delegator);
+    Ok(delegator)
 }
 
 /// create `max` validators.

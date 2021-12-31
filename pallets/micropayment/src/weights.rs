@@ -57,57 +57,57 @@ pub trait WeightInfo {
 pub struct SubstrateWeight<T>(PhantomData<T>);
 impl<T: frame_system::Config> WeightInfo for SubstrateWeight<T> {
     fn open_channel() -> Weight {
-        (53_093_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(4 as Weight))
-            .saturating_add(T::DbWeight::get().writes(3 as Weight))
+        53_093_000_u64
+            .saturating_add(T::DbWeight::get().reads(4_u64))
+            .saturating_add(T::DbWeight::get().writes(3_u64))
     }
     fn close_channel() -> Weight {
-        (60_013_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(4 as Weight))
-            .saturating_add(T::DbWeight::get().writes(5 as Weight))
+        60_013_000_u64
+            .saturating_add(T::DbWeight::get().reads(4_u64))
+            .saturating_add(T::DbWeight::get().writes(5_u64))
     }
     fn close_expired_channels() -> Weight {
-        (67_268_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(5 as Weight))
-            .saturating_add(T::DbWeight::get().writes(5 as Weight))
+        67_268_000_u64
+            .saturating_add(T::DbWeight::get().reads(5_u64))
+            .saturating_add(T::DbWeight::get().writes(5_u64))
     }
     fn add_balance() -> Weight {
-        (49_203_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(3 as Weight))
-            .saturating_add(T::DbWeight::get().writes(3 as Weight))
+        49_203_000_u64
+            .saturating_add(T::DbWeight::get().reads(3_u64))
+            .saturating_add(T::DbWeight::get().writes(3_u64))
     }
     fn claim_payment() -> Weight {
-        (128_777_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(4 as Weight))
-            .saturating_add(T::DbWeight::get().writes(4 as Weight))
+        128_777_000_u64
+            .saturating_add(T::DbWeight::get().reads(4_u64))
+            .saturating_add(T::DbWeight::get().writes(4_u64))
     }
 }
 
 // For backwards compatibility and tests
 impl WeightInfo for () {
     fn open_channel() -> Weight {
-        (53_093_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(4 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(3 as Weight))
+        53_093_000_u64
+            .saturating_add(RocksDbWeight::get().reads(4_u64))
+            .saturating_add(RocksDbWeight::get().writes(3_u64))
     }
     fn close_channel() -> Weight {
-        (60_013_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(4 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(5 as Weight))
+        60_013_000_u64
+            .saturating_add(RocksDbWeight::get().reads(4_u64))
+            .saturating_add(RocksDbWeight::get().writes(5_u64))
     }
     fn close_expired_channels() -> Weight {
-        (67_268_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(5 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(5 as Weight))
+        67_268_000_u64
+            .saturating_add(RocksDbWeight::get().reads(5_u64))
+            .saturating_add(RocksDbWeight::get().writes(5_u64))
     }
     fn add_balance() -> Weight {
-        (49_203_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(3 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(3 as Weight))
+        49_203_000_u64
+            .saturating_add(RocksDbWeight::get().reads(3_u64))
+            .saturating_add(RocksDbWeight::get().writes(3_u64))
     }
     fn claim_payment() -> Weight {
-        (128_777_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(4 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(4 as Weight))
+        128_777_000_u64
+            .saturating_add(RocksDbWeight::get().reads(4_u64))
+            .saturating_add(RocksDbWeight::get().writes(4_u64))
     }
 }

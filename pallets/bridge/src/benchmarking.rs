@@ -185,8 +185,8 @@ benchmarks! {
 
         Bridge::<T>::set_transfer(RawOrigin::Signed(user.clone()).into(), eth_address, amount)?;
         let sub_message_id = Bridge::<T>::message_id_by_transfer_id(0);
-        Bridge::<T>::approve_transfer(RawOrigin::Signed(validator1.clone()).into(), sub_message_id)?;
-        Bridge::<T>::approve_transfer(RawOrigin::Signed(validator2.clone()).into(), sub_message_id)?;
+        Bridge::<T>::approve_transfer(RawOrigin::Signed(validator1).into(), sub_message_id)?;
+        Bridge::<T>::approve_transfer(RawOrigin::Signed(validator2).into(), sub_message_id)?;
         let mut message = Bridge::<T>::messages(sub_message_id);
         assert_eq!(message.status, Status::Approved);
 
@@ -194,7 +194,7 @@ benchmarks! {
         // Current validator1, validator2 is not in ValidaotrsData
         let validator3 = create_funded_user::<T>("user",USER_SEED+3, 100);
         let validator4 = create_funded_user::<T>("user",USER_SEED+4, 100);
-        Bridge::<T>::confirm_transfer(RawOrigin::Signed(validator3.clone()).into(), sub_message_id)?;
+        Bridge::<T>::confirm_transfer(RawOrigin::Signed(validator3).into(), sub_message_id)?;
 
         message = Bridge::<T>::messages(sub_message_id);
         assert_eq!(message.status, Status::Confirmed);
@@ -212,10 +212,10 @@ benchmarks! {
         let validator1 = create_funded_user::<T>("user",USER_SEED+1, 100);
         let validator2 = create_funded_user::<T>("user",USER_SEED+2, 100);
 
-        Bridge::<T>::set_transfer(RawOrigin::Signed(user.clone()).into(), eth_address, amount)?;
+        Bridge::<T>::set_transfer(RawOrigin::Signed(user).into(), eth_address, amount)?;
         let sub_message_id = Bridge::<T>::message_id_by_transfer_id(0);
-        Bridge::<T>::approve_transfer(RawOrigin::Signed(validator1.clone()).into(), sub_message_id)?;
-        Bridge::<T>::approve_transfer(RawOrigin::Signed(validator2.clone()).into(), sub_message_id)?;
+        Bridge::<T>::approve_transfer(RawOrigin::Signed(validator1).into(), sub_message_id)?;
+        Bridge::<T>::approve_transfer(RawOrigin::Signed(validator2).into(), sub_message_id)?;
         let message = Bridge::<T>::messages(sub_message_id);
         assert_eq!(message.status, Status::Approved);
 
@@ -223,7 +223,7 @@ benchmarks! {
         // Current validator1, validator2 is not in ValidaotrsData
         let validator3 = create_funded_user::<T>("user",USER_SEED+3, 100);
         let validator4 = create_funded_user::<T>("user",USER_SEED+4, 100);
-        Bridge::<T>::cancel_transfer(RawOrigin::Signed(validator3.clone()).into(), sub_message_id)?;
+        Bridge::<T>::cancel_transfer(RawOrigin::Signed(validator3).into(), sub_message_id)?;
     }: _(RawOrigin::Signed(validator4), sub_message_id)
     verify {
         let message = Bridge::<T>::messages(sub_message_id);

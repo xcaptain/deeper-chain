@@ -85,7 +85,7 @@ pub fn open_frontier_backend(config: &Configuration) -> Result<Arc<fc_db::Backen
     Ok(Arc::new(fc_db::Backend::<Block>::new(
         &fc_db::DatabaseSettings {
             source: fc_db::DatabaseSettingsSrc::RocksDb {
-                path: frontier_database_dir(&config),
+                path: frontier_database_dir(config),
                 cache_size: 0,
             },
         },
@@ -173,7 +173,7 @@ pub fn new_partial(
     let justification_import = grandpa_block_import.clone();
 
     let frontier_block_import = FrontierBlockImport::new(
-        grandpa_block_import.clone(),
+        grandpa_block_import,
         client.clone(),
         frontier_backend.clone(),
     );
@@ -394,7 +394,7 @@ pub fn new_full_base(
             client.import_notification_stream(),
             Duration::new(6, 0),
             client.clone(),
-            backend.clone(),
+            backend,
             frontier_backend.clone(),
             SyncStrategy::Normal,
         )
@@ -791,7 +791,7 @@ mod tests {
         traits::{Block as BlockT, Header as HeaderT, IdentifyAccount, Verify},
         RuntimeAppPublic,
     };
-    use sp_timestamp;
+    
     use std::{borrow::Cow, convert::TryInto, sync::Arc};
 
     type AccountPublic = <Signature as Verify>::Signer;
@@ -900,7 +900,7 @@ mod tests {
                         .epoch_changes()
                         .shared_data()
                         .epoch_data(&epoch_descriptor, |slot| {
-                            sc_consensus_babe::Epoch::genesis(&babe_link.config(), slot)
+                            sc_consensus_babe::Epoch::genesis(babe_link.config(), slot)
                         })
                         .unwrap();
 
@@ -985,7 +985,7 @@ mod tests {
                 let signer = charlie.clone();
 
                 let function = Call::Balances(BalancesCall::transfer {
-                    dest: to.into(),
+                    dest: to,
                     value: amount,
                 });
 
@@ -1023,7 +1023,7 @@ mod tests {
                 index += 1;
                 GenericUncheckedExtrinsic::new_signed(
                     function,
-                    from.into(),
+                    from,
                     signature.into(),
                     extra,
                 )

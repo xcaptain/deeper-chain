@@ -61,97 +61,97 @@ pub trait WeightInfo {
 pub struct SubstrateWeight<T>(PhantomData<T>);
 impl<T: frame_system::Config> WeightInfo for SubstrateWeight<T> {
     fn set_transfer() -> Weight {
-        (108_414_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(8 as Weight))
-            .saturating_add(T::DbWeight::get().writes(6 as Weight))
+        108_414_000_u64
+            .saturating_add(T::DbWeight::get().reads(8_u64))
+            .saturating_add(T::DbWeight::get().writes(6_u64))
     }
     fn multi_signed_mint() -> Weight {
-        (136_056_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(11 as Weight))
-            .saturating_add(T::DbWeight::get().writes(7 as Weight))
+        136_056_000_u64
+            .saturating_add(T::DbWeight::get().reads(11_u64))
+            .saturating_add(T::DbWeight::get().writes(7_u64))
     }
     fn update_limits() -> Weight {
-        (86_025_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(8 as Weight))
-            .saturating_add(T::DbWeight::get().writes(4 as Weight))
+        86_025_000_u64
+            .saturating_add(T::DbWeight::get().reads(8_u64))
+            .saturating_add(T::DbWeight::get().writes(4_u64))
     }
     fn approve_transfer() -> Weight {
-        (152_197_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(12 as Weight))
-            .saturating_add(T::DbWeight::get().writes(5 as Weight))
+        152_197_000_u64
+            .saturating_add(T::DbWeight::get().reads(12_u64))
+            .saturating_add(T::DbWeight::get().writes(5_u64))
     }
     fn update_validator_list() -> Weight {
-        (99_104_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(8 as Weight))
-            .saturating_add(T::DbWeight::get().writes(9 as Weight))
+        99_104_000_u64
+            .saturating_add(T::DbWeight::get().reads(8_u64))
+            .saturating_add(T::DbWeight::get().writes(9_u64))
     }
     fn pause_bridge() -> Weight {
-        (87_044_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(9 as Weight))
-            .saturating_add(T::DbWeight::get().writes(4 as Weight))
+        87_044_000_u64
+            .saturating_add(T::DbWeight::get().reads(9_u64))
+            .saturating_add(T::DbWeight::get().writes(4_u64))
     }
     fn resume_bridge() -> Weight {
-        (88_474_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(9 as Weight))
-            .saturating_add(T::DbWeight::get().writes(4 as Weight))
+        88_474_000_u64
+            .saturating_add(T::DbWeight::get().reads(9_u64))
+            .saturating_add(T::DbWeight::get().writes(4_u64))
     }
     fn confirm_transfer() -> Weight {
-        (164_189_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(11 as Weight))
-            .saturating_add(T::DbWeight::get().writes(5 as Weight))
+        164_189_000_u64
+            .saturating_add(T::DbWeight::get().reads(11_u64))
+            .saturating_add(T::DbWeight::get().writes(5_u64))
     }
     fn cancel_transfer() -> Weight {
-        (148_955_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(9 as Weight))
-            .saturating_add(T::DbWeight::get().writes(4 as Weight))
+        148_955_000_u64
+            .saturating_add(T::DbWeight::get().reads(9_u64))
+            .saturating_add(T::DbWeight::get().writes(4_u64))
     }
 }
 
 // For backwards compatibility and tests
 impl WeightInfo for () {
     fn set_transfer() -> Weight {
-        (108_414_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(8 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(6 as Weight))
+        108_414_000_u64
+            .saturating_add(RocksDbWeight::get().reads(8_u64))
+            .saturating_add(RocksDbWeight::get().writes(6_u64))
     }
     fn multi_signed_mint() -> Weight {
-        (136_056_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(11 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(7 as Weight))
+        136_056_000_u64
+            .saturating_add(RocksDbWeight::get().reads(11_u64))
+            .saturating_add(RocksDbWeight::get().writes(7_u64))
     }
     fn update_limits() -> Weight {
-        (86_025_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(8 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(4 as Weight))
+        86_025_000_u64
+            .saturating_add(RocksDbWeight::get().reads(8_u64))
+            .saturating_add(RocksDbWeight::get().writes(4_u64))
     }
     fn approve_transfer() -> Weight {
-        (152_197_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(12 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(5 as Weight))
+        152_197_000_u64
+            .saturating_add(RocksDbWeight::get().reads(12_u64))
+            .saturating_add(RocksDbWeight::get().writes(5_u64))
     }
     fn update_validator_list() -> Weight {
-        (99_104_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(8 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(9 as Weight))
+        99_104_000_u64
+            .saturating_add(RocksDbWeight::get().reads(8_u64))
+            .saturating_add(RocksDbWeight::get().writes(9_u64))
     }
     fn pause_bridge() -> Weight {
-        (87_044_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(9 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(4 as Weight))
+        87_044_000_u64
+            .saturating_add(RocksDbWeight::get().reads(9_u64))
+            .saturating_add(RocksDbWeight::get().writes(4_u64))
     }
     fn resume_bridge() -> Weight {
-        (88_474_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(9 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(4 as Weight))
+        88_474_000_u64
+            .saturating_add(RocksDbWeight::get().reads(9_u64))
+            .saturating_add(RocksDbWeight::get().writes(4_u64))
     }
     fn confirm_transfer() -> Weight {
-        (164_189_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(11 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(5 as Weight))
+        164_189_000_u64
+            .saturating_add(RocksDbWeight::get().reads(11_u64))
+            .saturating_add(RocksDbWeight::get().writes(5_u64))
     }
     fn cancel_transfer() -> Weight {
-        (148_955_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(9 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(4 as Weight))
+        148_955_000_u64
+            .saturating_add(RocksDbWeight::get().reads(9_u64))
+            .saturating_add(RocksDbWeight::get().writes(4_u64))
     }
 }

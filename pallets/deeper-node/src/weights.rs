@@ -58,67 +58,67 @@ pub trait WeightInfo {
 pub struct SubstrateWeight<T>(PhantomData<T>);
 impl<T: frame_system::Config> WeightInfo for SubstrateWeight<T> {
     fn register_device() -> Weight {
-        (70_874_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(4 as Weight))
-            .saturating_add(T::DbWeight::get().writes(2 as Weight))
+        70_874_000_u64
+            .saturating_add(T::DbWeight::get().reads(4_u64))
+            .saturating_add(T::DbWeight::get().writes(2_u64))
     }
     fn unregister_device() -> Weight {
-        (91_770_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(7 as Weight))
-            .saturating_add(T::DbWeight::get().writes(2 as Weight))
+        91_770_000_u64
+            .saturating_add(T::DbWeight::get().reads(7_u64))
+            .saturating_add(T::DbWeight::get().writes(2_u64))
     }
     fn register_server() -> Weight {
-        (92_546_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(6 as Weight))
-            .saturating_add(T::DbWeight::get().writes(4 as Weight))
+        92_546_000_u64
+            .saturating_add(T::DbWeight::get().reads(6_u64))
+            .saturating_add(T::DbWeight::get().writes(4_u64))
     }
     fn update_server() -> Weight {
-        (25_700_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(1 as Weight))
-            .saturating_add(T::DbWeight::get().writes(1 as Weight))
+        25_700_000_u64
+            .saturating_add(T::DbWeight::get().reads(1_u64))
+            .saturating_add(T::DbWeight::get().writes(1_u64))
     }
     fn unregister_server() -> Weight {
-        (96_679_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(6 as Weight))
-            .saturating_add(T::DbWeight::get().writes(4 as Weight))
+        96_679_000_u64
+            .saturating_add(T::DbWeight::get().reads(6_u64))
+            .saturating_add(T::DbWeight::get().writes(4_u64))
     }
     fn im_online() -> Weight {
-        (32_710_000 as Weight)
-            .saturating_add(T::DbWeight::get().reads(2 as Weight))
-            .saturating_add(T::DbWeight::get().writes(3 as Weight))
+        32_710_000_u64
+            .saturating_add(T::DbWeight::get().reads(2_u64))
+            .saturating_add(T::DbWeight::get().writes(3_u64))
     }
 }
 
 // For backwards compatibility and tests
 impl WeightInfo for () {
     fn register_device() -> Weight {
-        (70_874_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(4 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(2 as Weight))
+        70_874_000_u64
+            .saturating_add(RocksDbWeight::get().reads(4_u64))
+            .saturating_add(RocksDbWeight::get().writes(2_u64))
     }
     fn unregister_device() -> Weight {
-        (91_770_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(7 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(2 as Weight))
+        91_770_000_u64
+            .saturating_add(RocksDbWeight::get().reads(7_u64))
+            .saturating_add(RocksDbWeight::get().writes(2_u64))
     }
     fn register_server() -> Weight {
-        (92_546_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(6 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(4 as Weight))
+        92_546_000_u64
+            .saturating_add(RocksDbWeight::get().reads(6_u64))
+            .saturating_add(RocksDbWeight::get().writes(4_u64))
     }
     fn update_server() -> Weight {
-        (25_700_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(1 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(1 as Weight))
+        25_700_000_u64
+            .saturating_add(RocksDbWeight::get().reads(1_u64))
+            .saturating_add(RocksDbWeight::get().writes(1_u64))
     }
     fn unregister_server() -> Weight {
-        (96_679_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(6 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(4 as Weight))
+        96_679_000_u64
+            .saturating_add(RocksDbWeight::get().reads(6_u64))
+            .saturating_add(RocksDbWeight::get().writes(4_u64))
     }
     fn im_online() -> Weight {
-        (32_710_000 as Weight)
-            .saturating_add(RocksDbWeight::get().reads(2 as Weight))
-            .saturating_add(RocksDbWeight::get().writes(3 as Weight))
+        32_710_000_u64
+            .saturating_add(RocksDbWeight::get().reads(2_u64))
+            .saturating_add(RocksDbWeight::get().writes(3_u64))
     }
 }

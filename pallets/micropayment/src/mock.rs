@@ -188,8 +188,8 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
     }
     .assimilate_storage(&mut storage);
 
-    let ext = sp_io::TestExternalities::from(storage);
-    ext
+    
+    sp_io::TestExternalities::from(storage)
 }
 
 pub fn run_to_block(n: u64) {

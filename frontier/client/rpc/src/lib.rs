@@ -181,7 +181,7 @@ pub mod frontier_backend_client {
             .find(|meta| is_canon::<B, C>(client, meta.block_hash))
             .map_or_else(
                 || {
-                    if !only_canonical && transaction_metadata.len() > 0 {
+                    if !only_canonical && !transaction_metadata.is_empty() {
                         Ok(Some((
                             transaction_metadata[0].ethereum_block_hash,
                             transaction_metadata[0].ethereum_index,
@@ -211,7 +211,7 @@ pub fn error_on_execution_failure(reason: &ExitReason, data: &[u8]) -> Result<()
                 // `ServerError(0)` will be useful in estimate gas
                 return Err(Error {
                     code: ErrorCode::ServerError(0),
-                    message: format!("out of gas"),
+                    message: "out of gas".to_string(),
                     data: None,
                 });
             }
@@ -350,7 +350,7 @@ impl EthSigner for EthDevSigner {
                                 gas_limit: m.gas_limit,
                                 action: m.action,
                                 value: m.value,
-                                input: m.input.clone(),
+                                input: m.input,
                                 signature: ethereum::TransactionSignature::new(v, r, s)
                                     .ok_or(internal_err("signer generated invalid signature"))?,
                             }));

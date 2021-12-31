@@ -119,8 +119,7 @@ impl Into<Option<TransactionMessage>> for TransactionRequest {
                     },
                     chain_id: 0,
                     access_list: self
-                        .access_list
-                        .unwrap_or(Vec::new())
+                        .access_list.unwrap_or_default()
                         .into_iter()
                         .map(|(address, slots)| AccessListItem { address, slots })
                         .collect(),

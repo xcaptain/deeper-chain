@@ -116,7 +116,7 @@ impl<Block: BlockT> MetaDb<Block> {
     pub fn current_syncing_tips(&self) -> Result<Vec<Block::Hash>, String> {
         match self.db.get(
             crate::columns::META,
-            &crate::static_keys::CURRENT_SYNCING_TIPS,
+            crate::static_keys::CURRENT_SYNCING_TIPS,
         ) {
             Some(raw) => {
                 Ok(Vec::<Block::Hash>::decode(&mut &raw[..]).map_err(|e| format!("{:?}", e))?)

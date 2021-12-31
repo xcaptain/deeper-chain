@@ -26,7 +26,7 @@ mod tests;
 #[cfg(any(feature = "runtime-benchmarks", test))]
 pub mod benchmarking;
 pub mod weights;
-pub(crate) const LOG_TARGET: &'static str = "credit";
+pub(crate) const LOG_TARGET: &str = "credit";
 
 // syntactic sugar for logging.
 #[macro_export]
@@ -336,10 +336,10 @@ pub mod pallet {
     impl<T: Config> Pallet<T> {
         pub fn slash_offline_device_credit(account_id: &T::AccountId) -> Weight {
             let mut weight = T::DbWeight::get().reads_writes(1, 0);
-            let eras = T::NodeInterface::get_eras_offline(&account_id);
+            let eras = T::NodeInterface::get_eras_offline(account_id);
             if eras > 0 && eras % 3 == 0 {
                 // slash one credit for being offline every 3 eras
-                weight = weight.saturating_add(Self::slash_credit(&account_id));
+                weight = weight.saturating_add(Self::slash_credit(account_id));
             }
             weight
         }
@@ -380,7 +380,7 @@ pub mod pallet {
                 // user credit data cannot be none unless there is a bug
                 let user_credit_data = Self::user_credit(&account_id).unwrap();
                 if user_credit_history[last_index].0 == current_era {
-                    user_credit_history[last_index] = (current_era, user_credit_data.clone());
+                    user_credit_history[last_index] = (current_era, user_credit_data);
                 } else {
                     user_credit_history.push((current_era, user_credit_data));
                 }
@@ -404,10 +404,7 @@ pub mod pallet {
         }
 
         fn get_onboard_era(account_id: &T::AccountId) -> Option<EraIndex> {
-            match T::NodeInterface::get_onboard_time(account_id) {
-                Some(block) => Some(Self::block_to_era(block)),
-                None => None,
-            }
+            T::NodeInterface::get_onboard_time(account_id).map(Self::block_to_era)
         }
 
         /// get all the credit data passing the threshold for the eras between "from" and "to"
@@ -500,12 +497,12 @@ pub mod pallet {
 
             DailyPocReward::<T>::insert(
                 credit_setting.campaign_id,
-                credit_setting.credit_level.clone(),
+                credit_setting.credit_level,
                 (base_daily_poc_reward, base_daily_poc_reward_with_bonus),
             );
             CreditSettings::<T>::insert(
                 credit_setting.campaign_id,
-                credit_setting.credit_level.clone(),
+                credit_setting.credit_level,
                 credit_setting,
             );
         }
@@ -546,11 +543,7 @@ pub mod pallet {
         }
 
         fn get_credit_score(account_id: &T::AccountId) -> Option<u64> {
-            if let Some(credit_data) = Self::user_credit(account_id) {
-                Some(credit_data.credit)
-            } else {
-                None
-            }
+            Self::user_credit(account_id).map(|credit_data| credit_data.credit)
         }
 
         /// check if account_id's credit score is pass threshold
@@ -589,7 +582,8 @@ pub mod pallet {
         }
 
         fn get_credit_level(credit_score: u64) -> CreditLevel {
-            let credit_level = match credit_score {
+            
+            match credit_score {
                 0..=99 => CreditLevel::Zero,
                 100..=199 => CreditLevel::One,
                 200..=299 => CreditLevel::Two,
@@ -599,8 +593,7 @@ pub mod pallet {
                 600..=699 => CreditLevel::Six,
                 700..=799 => CreditLevel::Seven,
                 _ => CreditLevel::Eight,
-            };
-            credit_level
+            }
         }
 
         fn get_reward(
@@ -666,7 +659,7 @@ pub mod pallet {
             for (credit_data, num_of_eras) in credit_map {
                 let initial_credit_level = credit_data.initial_credit_level;
                 let credit_setting =
-                    Self::credit_settings(credit_data.campaign_id, initial_credit_level.clone());
+                    Self::credit_settings(credit_data.campaign_id, initial_credit_level);
                 weight = weight.saturating_add(T::DbWeight::get().reads_writes(1, 0));
                 // referral reward
                 let number_of_referees =
@@ -682,7 +675,7 @@ pub mod pallet {
                 // poc reward
                 let current_credit_level = credit_data.current_credit_level;
                 let (base_daily_poc_reward, daily_poc_reward_with_bonus) =
-                    Self::daily_poc_reward(credit_data.campaign_id, current_credit_level.clone());
+                    Self::daily_poc_reward(credit_data.campaign_id, current_credit_level);
                 weight = weight.saturating_add(T::DbWeight::get().reads_writes(1, 0));
 
                 let daily_poc_reward = if current_credit_level == initial_credit_level {
@@ -761,7 +754,7 @@ pub mod pallet {
             log!(
                 info,
                 "server_id: {:?}, balance_num: {}, score_delta:{}",
-                server_id.clone(),
+                server_id,
                 balance_num,
                 score_delta
             );
@@ -787,7 +780,7 @@ pub mod pallet {
                         log!(
                             info,
                             "server_id: {:?} score_delta capped at {}",
-                            server_id.clone(),
+                            server_id,
                             total_cap
                         );
                     }
@@ -806,7 +799,7 @@ pub mod pallet {
                             error,
                             "failed to update credit {} for server_id: {:?}",
                             new_credit,
-                            server_id.clone()
+                            server_id
                         );
                     }
                 }

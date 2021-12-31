@@ -71,7 +71,7 @@ fn open_channel() {
 
         // balance of 2 is 500, but channel balance experted is 1000
         if let Err(dispatch_error_with_post_info) =
-            Micropayment::open_channel(Origin::signed(bob.clone()), charlie(), 1000, 3600)
+            Micropayment::open_channel(Origin::signed(bob), charlie(), 1000, 3600)
         {
             assert_eq!(
                 dispatch_error_with_post_info.error,
@@ -85,7 +85,7 @@ fn open_channel() {
 
         // balance is 500, after open_channel alice should has at least 100 DPR in her account, so can't lock 400 DPR
         if let Err(dispatch_error_with_post_info) =
-            Micropayment::open_channel(Origin::signed(alice.clone()), charlie(), 400, 3600)
+            Micropayment::open_channel(Origin::signed(alice), charlie(), 400, 3600)
         {
             assert_eq!(
                 dispatch_error_with_post_info.error,

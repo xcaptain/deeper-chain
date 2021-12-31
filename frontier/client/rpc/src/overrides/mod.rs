@@ -104,7 +104,7 @@ where
     fn account_code_at(&self, block: &BlockId<Block>, address: H160) -> Option<Vec<u8>> {
         self.client
             .runtime_api()
-            .account_code_at(&block, address)
+            .account_code_at(block, address)
             .ok()
     }
 
@@ -112,7 +112,7 @@ where
     fn storage_at(&self, block: &BlockId<Block>, address: H160, index: U256) -> Option<H256> {
         self.client
             .runtime_api()
-            .storage_at(&block, address, index)
+            .storage_at(block, address, index)
             .ok()
     }
 
@@ -121,7 +121,7 @@ where
         let api = self.client.runtime_api();
 
         let api_version = if let Ok(Some(api_version)) =
-            api.api_version::<dyn EthereumRuntimeRPCApi<Block>>(&block)
+            api.api_version::<dyn EthereumRuntimeRPCApi<Block>>(block)
         {
             api_version
         } else {
@@ -129,20 +129,16 @@ where
         };
         if api_version == 1 {
             #[allow(deprecated)]
-            let old_block = api.current_block_before_version_2(&block).ok()?;
-            if let Some(block) = old_block {
-                Some(block.into())
-            } else {
-                None
-            }
+            let old_block = api.current_block_before_version_2(block).ok()?;
+            old_block.map(|block| block.into())
         } else {
-            api.current_block(&block).ok()?
+            api.current_block(block).ok()?
         }
     }
 
     /// Return the current receipt.
     fn current_receipts(&self, block: &BlockId<Block>) -> Option<Vec<ethereum::Receipt>> {
-        self.client.runtime_api().current_receipts(&block).ok()?
+        self.client.runtime_api().current_receipts(block).ok()?
     }
 
     /// Return the current transaction status.
@@ -152,14 +148,14 @@ where
     ) -> Option<Vec<TransactionStatus>> {
         self.client
             .runtime_api()
-            .current_transaction_statuses(&block)
+            .current_transaction_statuses(block)
             .ok()?
     }
 
     /// Return the base fee at the given post-eip1559 height.
     fn base_fee(&self, block: &BlockId<Block>) -> Option<U256> {
         if self.is_eip1559(block) {
-            self.client.runtime_api().gas_price(&block).ok()
+            self.client.runtime_api().gas_price(block).ok()
         } else {
             None
         }
@@ -169,10 +165,10 @@ where
         if let Ok(Some(api_version)) = self
             .client
             .runtime_api()
-            .api_version::<dyn EthereumRuntimeRPCApi<Block>>(&block)
+            .api_version::<dyn EthereumRuntimeRPCApi<Block>>(block)
         {
             return api_version >= 2;
         }
-        return false;
+        false
     }
 }

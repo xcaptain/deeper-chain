@@ -151,7 +151,7 @@ impl<'a> Visitor<'a> for BlockNumberVisitor {
             });
         }
 
-        return Err(Error::custom("Invalid input"));
+        Err(Error::custom("Invalid input"))
     }
 
     fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
@@ -165,7 +165,7 @@ impl<'a> Visitor<'a> for BlockNumberVisitor {
             _ if value.starts_with("0x") => u64::from_str_radix(&value[2..], 16)
                 .map(BlockNumber::Num)
                 .map_err(|e| Error::custom(format!("Invalid block number: {}", e))),
-            _ => u64::from_str_radix(&value, 10)
+            _ => u64::from_str_radix(value, 10)
                 .map(BlockNumber::Num)
                 .map_err(|_| {
                     Error::custom(
@@ -207,8 +207,8 @@ mod tests {
         let bn_hex: BlockNumber = serde_json::from_str(r#""0x45""#).unwrap();
         let bn_u64: BlockNumber = serde_json::from_str(r#"420"#).unwrap();
 
-        assert_eq!(match_block_number(bn_dec).unwrap(), 42 as u64);
-        assert_eq!(match_block_number(bn_hex).unwrap(), 69 as u64);
-        assert_eq!(match_block_number(bn_u64).unwrap(), 420 as u64);
+        assert_eq!(match_block_number(bn_dec).unwrap(), 42_u64);
+        assert_eq!(match_block_number(bn_hex).unwrap(), 69_u64);
+        assert_eq!(match_block_number(bn_u64).unwrap(), 420_u64);
     }
 }

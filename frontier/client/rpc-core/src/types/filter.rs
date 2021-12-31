@@ -82,10 +82,10 @@ impl From<&VariadicValue<H160>> for Vec<Option<Bloom>> {
                 blooms.push(Some(bloom))
             }
             VariadicValue::Multiple(addresses) => {
-                if addresses.len() == 0 {
+                if addresses.is_empty() {
                     blooms.push(None);
                 } else {
-                    for address in addresses.into_iter() {
+                    for address in addresses.iter() {
                         let bloom: Bloom = BloomInput::Raw(address.as_ref()).into();
                         blooms.push(Some(bloom));
                     }
@@ -110,10 +110,10 @@ impl From<&VariadicValue<Option<H256>>> for Vec<Option<Bloom>> {
                 }
             }
             VariadicValue::Multiple(topics) => {
-                if topics.len() == 0 {
+                if topics.is_empty() {
                     blooms.push(None);
                 } else {
-                    for topic in topics.into_iter() {
+                    for topic in topics.iter() {
                         if let Some(topic) = topic {
                             let bloom: Bloom = BloomInput::Raw(topic.as_ref()).into();
                             blooms.push(Some(bloom));
@@ -169,7 +169,7 @@ impl FilteredParams {
             return FilteredParams {
                 filter: Some(f.clone()),
                 flat_topics: {
-                    if let Some(t) = f.clone().topics {
+                    if let Some(t) = f.topics {
                         Self::flatten(&t)
                     } else {
                         Vec::new()
@@ -201,12 +201,12 @@ impl FilteredParams {
 
     /// Evaluates if a Bloom contains a provided sequence of topics.
     pub fn topics_in_bloom(bloom: Bloom, topic_bloom_filters: &Vec<BloomFilter>) -> bool {
-        if topic_bloom_filters.len() == 0 {
+        if topic_bloom_filters.is_empty() {
             // No filter provided, match.
             return true;
         }
         // A logical OR evaluation over `topic_bloom_filters`.
-        for subset in topic_bloom_filters.into_iter() {
+        for subset in topic_bloom_filters.iter() {
             let mut matches = false;
             for el in subset {
                 matches = match el {
@@ -229,7 +229,7 @@ impl FilteredParams {
 
     /// Evaluates if a Bloom contains the provided address(es).
     pub fn address_in_bloom(bloom: Bloom, address_bloom_filter: &BloomFilter) -> bool {
-        if address_bloom_filter.len() == 0 {
+        if address_bloom_filter.is_empty() {
             // No filter provided, match.
             return true;
         } else {
@@ -280,7 +280,7 @@ impl FilteredParams {
                         if let Some(v) = v {
                             match v {
                                 VariadicValue::Single(s) => {
-                                    vec![s.clone()]
+                                    vec![*s]
                                 }
                                 VariadicValue::Multiple(s) => s.clone(),
                                 VariadicValue::Null => {
@@ -322,13 +322,13 @@ impl FilteredParams {
                     if let Some(v) = v {
                         out.push(v);
                     } else {
-                        out.push(log.topics[k].clone());
+                        out.push(log.topics[k]);
                     }
                 }
             }
             _ => {}
         };
-        if out.len() == 0 {
+        if out.is_empty() {
             return None;
         }
         Some(out)
@@ -340,7 +340,7 @@ impl FilteredParams {
         if let Some(from) = filter.from_block {
             match from {
                 BlockNumber::Num(_) => {
-                    if from.to_min_block_num().unwrap_or(0 as u64) > block_number {
+                    if from.to_min_block_num().unwrap_or(0_u64) > block_number {
                         out = false;
                     }
                 }
@@ -350,7 +350,7 @@ impl FilteredParams {
         if let Some(to) = filter.to_block {
             match to {
                 BlockNumber::Num(_) => {
-                    if to.to_min_block_num().unwrap_or(0 as u64) < block_number {
+                    if to.to_min_block_num().unwrap_or(0_u64) < block_number {
                         out = false;
                     }
                 }
@@ -399,7 +399,7 @@ impl FilteredParams {
             match topic {
                 VariadicValue::Single(single) => {
                     if let Some(single) = single {
-                        if !log.topics.starts_with(&vec![single]) {
+                        if !log.topics.starts_with(&[single]) {
                             out = false;
                         }
                     }
@@ -555,7 +555,7 @@ mod tests {
                 Some(VariadicValue::Multiple(vec![Some(topic2), Some(topic3)])),
             ])),
         };
-        let topics_input = if let Some(_) = &filter.topics {
+        let topics_input = if filter.topics.is_some() {
             let filtered_params = FilteredParams::new(Some(filter.clone()));
             Some(filtered_params.flat_topics)
         } else {
@@ -588,7 +588,7 @@ mod tests {
                 Some(VariadicValue::Multiple(vec![Some(topic2), Some(topic3)])),
             ])),
         };
-        let topics_input = if let Some(_) = &filter.topics {
+        let topics_input = if filter.topics.is_some() {
             let filtered_params = FilteredParams::new(Some(filter.clone()));
             Some(filtered_params.flat_topics)
         } else {
@@ -609,7 +609,7 @@ mod tests {
             address: None,
             topics: Some(VariadicValue::Multiple(vec![])),
         };
-        let topics_input = if let Some(_) = &filter.topics {
+        let topics_input = if filter.topics.is_some() {
             let filtered_params = FilteredParams::new(Some(filter.clone()));
             Some(filtered_params.flat_topics)
         } else {
@@ -643,7 +643,7 @@ mod tests {
                 Some(VariadicValue::Multiple(vec![Some(topic2), Some(topic3)])),
             ])),
         };
-        let topics_input = if let Some(_) = &filter.topics {
+        let topics_input = if filter.topics.is_some() {
             let filtered_params = FilteredParams::new(Some(filter.clone()));
             Some(filtered_params.flat_topics)
         } else {
@@ -677,7 +677,7 @@ mod tests {
                 Some(VariadicValue::Multiple(vec![Some(topic2), Some(topic3)])),
             ])),
         };
-        let topics_input = if let Some(_) = &filter.topics {
+        let topics_input = if filter.topics.is_some() {
             let filtered_params = FilteredParams::new(Some(filter.clone()));
             Some(filtered_params.flat_topics)
         } else {
@@ -707,7 +707,7 @@ mod tests {
                 Some(VariadicValue::Multiple(vec![Some(topic2), Some(topic3)])),
             ])),
         };
-        let topics_input = if let Some(_) = &filter.topics {
+        let topics_input = if filter.topics.is_some() {
             let filtered_params = FilteredParams::new(Some(filter.clone()));
             Some(filtered_params.flat_topics)
         } else {
@@ -737,7 +737,7 @@ mod tests {
                 Some(VariadicValue::Multiple(vec![Some(topic2), Some(topic3)])),
             ])),
         };
-        let topics_input = if let Some(_) = &filter.topics {
+        let topics_input = if filter.topics.is_some() {
             let filtered_params = FilteredParams::new(Some(filter.clone()));
             Some(filtered_params.flat_topics)
         } else {

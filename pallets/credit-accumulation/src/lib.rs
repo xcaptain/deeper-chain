@@ -150,7 +150,7 @@ pub mod pallet {
             let pub_key = sr25519::Public::from_raw(pk);
 
             let mut sig = [0u8; 64];
-            sig.copy_from_slice(&signature);
+            sig.copy_from_slice(signature);
             let sig = sr25519::Signature::from_slice(&sig);
 
             let mut data = Vec::new();

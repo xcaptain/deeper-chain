@@ -210,7 +210,7 @@ pub mod pallet {
         ) -> DispatchResultWithPostInfo {
             let sender = ensure_signed(origin)?;
             ensure!(
-                <RegionMapInit<T>>::get() == true,
+                <RegionMapInit<T>>::get(),
                 Error::<T>::InvalidRegionMap
             );
             ensure!(
@@ -311,9 +311,9 @@ pub mod pallet {
         pub fn im_online(origin: OriginFor<T>) -> DispatchResultWithPostInfo {
             let sender = ensure_signed(origin)?;
             let current_block = <frame_system::Pallet<T>>::block_number();
-            ImOnline::<T>::insert(&sender, current_block.clone());
+            ImOnline::<T>::insert(&sender, current_block);
             if !OnboardTime::<T>::contains_key(&sender) {
-                OnboardTime::<T>::insert(&sender, current_block.clone());
+                OnboardTime::<T>::insert(&sender, current_block);
                 DevicesOnboard::<T>::mutate(|devices| devices.push(sender.clone()));
             }
             Self::deposit_event(Event::ImOnline(sender, current_block));
@@ -330,15 +330,15 @@ pub mod pallet {
 
             // remove from country server list
             let mut server_list = <ServersByCountry<T>>::get(&node.country);
-            let _ = Self::country_list_remove(&mut server_list, &sender, &node.country);
+            let _ = Self::country_list_remove(&mut server_list, sender, &node.country);
 
             // remove from level 3 region server list
             server_list = <ServersByRegion<T>>::get(&first_region);
-            let _ = Self::region_list_remove(&mut server_list, &sender, &first_region);
+            let _ = Self::region_list_remove(&mut server_list, sender, &first_region);
 
             // remove from level 2 region server list
             server_list = <ServersByRegion<T>>::get(&sec_region);
-            let _ = Self::region_list_remove(&mut server_list, &sender, &sec_region);
+            let _ = Self::region_list_remove(&mut server_list, sender, &sec_region);
 
             // ensure consistency
             node.expire = <frame_system::Pallet<T>>::block_number();
@@ -355,33 +355,31 @@ pub mod pallet {
 
             // country registration
             let mut country_server_list = <ServersByCountry<T>>::get(&node.country);
-            if Self::country_list_insert(
+            if !Self::country_list_insert(
                 &mut country_server_list,
-                &sender,
+                sender,
                 &node.country,
                 &duration,
-            ) == false
+            )
             {
-                Err(Error::<T>::DoubleCountryRegistration)?
+                return Err(Error::<T>::DoubleCountryRegistration.into())
             }
 
             // level 3 region registration
             let mut level3_server_list = <ServersByRegion<T>>::get(&first_region);
-            if Self::region_list_insert(&mut level3_server_list, &sender, &first_region, &duration)
-                == false
+            if !Self::region_list_insert(&mut level3_server_list, sender, &first_region, &duration)
             {
-                let _ = Self::country_list_remove(&mut country_server_list, &sender, &node.country);
-                Err(Error::<T>::DoubleLevel3Registration)?
+                let _ = Self::country_list_remove(&mut country_server_list, sender, &node.country);
+                return Err(Error::<T>::DoubleLevel3Registration.into())
             }
 
             // level 2 region registration
             let mut level2_server_list = <ServersByRegion<T>>::get(&sec_region);
-            if Self::region_list_insert(&mut level2_server_list, &sender, &sec_region, &duration)
-                == false
+            if !Self::region_list_insert(&mut level2_server_list, sender, &sec_region, &duration)
             {
-                let _ = Self::country_list_remove(&mut country_server_list, &sender, &node.country);
-                let _ = Self::region_list_remove(&mut level3_server_list, &sender, &first_region);
-                Err(Error::<T>::DoubleLevel2Registration)?
+                let _ = Self::country_list_remove(&mut country_server_list, sender, &node.country);
+                let _ = Self::region_list_remove(&mut level3_server_list, sender, &first_region);
+                return Err(Error::<T>::DoubleLevel2Registration.into())
             }
 
             // ensure consistency
@@ -397,7 +395,7 @@ pub mod pallet {
             country: &CountryRegion,
             duration: &T::BlockNumber,
         ) -> bool {
-            match servers.binary_search(&account) {
+            match servers.binary_search(account) {
                 Ok(_) => false,
                 Err(index) => {
                     servers.insert(index, account.clone());
@@ -405,7 +403,7 @@ pub mod pallet {
                     Self::deposit_event(Event::ServerCountryAdded(
                         account.clone(),
                         country.clone(),
-                        duration.clone(),
+                        *duration,
                         index as u64,
                     ));
                     true
@@ -418,7 +416,7 @@ pub mod pallet {
             account: &T::AccountId,
             country: &CountryRegion,
         ) -> bool {
-            match servers.binary_search(&account) {
+            match servers.binary_search(account) {
                 Ok(index) => {
                     servers.remove(index);
                     <ServersByCountry<T>>::insert(&country, servers);
@@ -438,7 +436,7 @@ pub mod pallet {
             region: &CountryRegion,
             duration: &T::BlockNumber,
         ) -> bool {
-            match servers.binary_search(&account) {
+            match servers.binary_search(account) {
                 Ok(_) => false,
                 Err(index) => {
                     servers.insert(index, account.clone());
@@ -446,7 +444,7 @@ pub mod pallet {
                     Self::deposit_event(Event::ServerRegionAdded(
                         account.clone(),
                         region.clone(),
-                        duration.clone(),
+                        *duration,
                         index as u64,
                     ));
                     true
@@ -459,7 +457,7 @@ pub mod pallet {
             account: &T::AccountId,
             region: &CountryRegion,
         ) -> bool {
-            match servers.binary_search(&account) {
+            match servers.binary_search(account) {
                 Ok(index) => {
                     servers.remove(index);
                     <ServersByRegion<T>>::insert(&region, servers);
@@ -793,7 +791,7 @@ pub mod pallet {
         }
 
         fn get_eras_offline(account_id: &T::AccountId) -> u32 {
-            let block = Self::get_im_online(account_id).unwrap_or(T::BlockNumber::default());
+            let block = Self::get_im_online(account_id).unwrap_or_default();
             let current_block = <frame_system::Pallet<T>>::block_number();
             let eras = (current_block - block) / T::BlocksPerEra::get();
             TryInto::<u32>::try_into(eras).ok().unwrap()

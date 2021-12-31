@@ -108,8 +108,8 @@ fn main() {
                 {
                     import_benchmarks.push((
                         profile,
-                        size.clone(),
-                        block_type.clone(),
+                        *size,
+                        *block_type,
                         database_type,
                     ));
                 }
@@ -122,8 +122,8 @@ fn main() {
             ImportBenchmarkDescription {
                 profile: *profile,
                 key_types: KeyTypes::Sr25519,
-                size: size,
-                block_type: block_type,
+                size,
+                block_type,
                 database_type: *database_type,
             },
         (size, db_type) in

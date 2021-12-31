@@ -93,8 +93,8 @@ impl<O: Into<Result<RawOrigin, O>> + From<RawOrigin>> EnsureOrigin<O>
 {
     type Success = H160;
     fn try_origin(o: O) -> Result<Self::Success, O> {
-        o.into().and_then(|o| match o {
-            RawOrigin::EthereumTransaction(id) => Ok(id),
+        o.into().map(|o| match o {
+            RawOrigin::EthereumTransaction(id) => id,
         })
     }
 
@@ -118,7 +118,7 @@ where
     pub fn check_self_contained(&self) -> Option<Result<H160, TransactionValidityError>> {
         if let Call::transact { transaction } = self {
             let check = || {
-                let origin = Pallet::<T>::recover_signer(&transaction).ok_or_else(|| {
+                let origin = Pallet::<T>::recover_signer(transaction).ok_or_else(|| {
                     InvalidTransaction::Custom(TransactionValidationError::InvalidSignature as u8)
                 })?;
 
@@ -138,7 +138,7 @@ where
         if let Call::transact { transaction } = self {
             Some(Pallet::<T>::validate_transaction_in_block(
                 *origin,
-                &transaction,
+                transaction,
             ))
         } else {
             None
@@ -232,7 +232,7 @@ pub mod pallet {
 
         fn on_runtime_upgrade() -> Weight {
             frame_support::storage::unhashed::put::<EthereumStorageSchema>(
-                &PALLET_ETHEREUM_SCHEMA,
+                PALLET_ETHEREUM_SCHEMA,
                 &EthereumStorageSchema::V2,
             );
 
@@ -309,7 +309,7 @@ pub mod pallet {
         fn build(&self) {
             <Pallet<T>>::store_block(false, U256::zero());
             frame_support::storage::unhashed::put::<EthereumStorageSchema>(
-                &PALLET_ETHEREUM_SCHEMA,
+                PALLET_ETHEREUM_SCHEMA,
                 &EthereumStorageSchema::V2,
             );
         }
@@ -415,7 +415,7 @@ impl<T: Config> Pallet<T> {
 
         let ommers = Vec::<ethereum::Header>::new();
         let receipts_root =
-            ethereum::util::ordered_trie_root(receipts.iter().map(|r| rlp::encode(r)));
+            ethereum::util::ordered_trie_root(receipts.iter().map(rlp::encode));
         let partial_header = ethereum::PartialHeader {
             parent_hash: Self::current_block_hash().unwrap_or_default(),
             beneficiary: pallet_evm::Pallet::<T>::find_author(),
@@ -448,7 +448,7 @@ impl<T: Config> Pallet<T> {
                 FRONTIER_ENGINE_ID,
                 PostLog::Hashes(fp_consensus::Hashes::from_block(block)).encode(),
             );
-            frame_system::Pallet::<T>::deposit_log(digest.into());
+            frame_system::Pallet::<T>::deposit_log(digest);
         }
     }
 
@@ -554,7 +554,7 @@ impl<T: Config> Pallet<T> {
         origin: H160,
         transaction: &Transaction,
     ) -> TransactionValidity {
-        let transaction_data = Pallet::<T>::transaction_data(&transaction);
+        let transaction_data = Pallet::<T>::transaction_data(transaction);
         let transaction_nonce = transaction_data.nonce;
 
         let (account_nonce, priority) =
@@ -634,7 +634,7 @@ impl<T: Config> Pallet<T> {
                 ExitReason::Fatal(_) => H256::from_low_u64_le(0),
             },
             used_gas,
-            logs_bloom: status.clone().logs_bloom,
+            logs_bloom: status.logs_bloom,
             logs: status.clone().logs,
         };
 
@@ -698,8 +698,7 @@ impl<T: Config> Pallet<T> {
                     let base_fee = T::FeeCalculator::min_gas_price();
                     let priority_fee = t
                         .gas_price
-                        .checked_sub(base_fee)
-                        .ok_or_else(|| DispatchError::Other("Gas price too low"))?;
+                        .checked_sub(base_fee).ok_or(DispatchError::Other("Gas price too low"))?;
                     (
                         t.input.clone(),
                         t.value,
@@ -715,8 +714,7 @@ impl<T: Config> Pallet<T> {
                     let base_fee = T::FeeCalculator::min_gas_price();
                     let priority_fee = t
                         .gas_price
-                        .checked_sub(base_fee)
-                        .ok_or_else(|| DispatchError::Other("Gas price too low"))?;
+                        .checked_sub(base_fee).ok_or(DispatchError::Other("Gas price too low"))?;
                     let access_list: Vec<(H160, Vec<H256>)> = t
                         .access_list
                         .iter()
@@ -758,7 +756,7 @@ impl<T: Config> Pallet<T> {
                 let res = T::Runner::call(
                     from,
                     target,
-                    input.clone(),
+                    input,
                     value,
                     gas_limit.low_u64(),
                     max_fee_per_gas,
@@ -774,7 +772,7 @@ impl<T: Config> Pallet<T> {
             ethereum::TransactionAction::Create => {
                 let res = T::Runner::create(
                     from,
-                    input.clone(),
+                    input,
                     value,
                     gas_limit.low_u64(),
                     max_fee_per_gas,
@@ -798,7 +796,7 @@ impl<T: Config> Pallet<T> {
         origin: H160,
         transaction: &Transaction,
     ) -> Result<(), TransactionValidityError> {
-        let transaction_data = Pallet::<T>::transaction_data(&transaction);
+        let transaction_data = Pallet::<T>::transaction_data(transaction);
         let transaction_nonce = transaction_data.nonce;
         let (account_nonce, _) = Self::validate_transaction_common(origin, &transaction_data)?;
 

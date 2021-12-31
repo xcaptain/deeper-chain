@@ -284,13 +284,13 @@ pub fn new_test_ext(accounts_len: usize) -> (Vec<AccountInfo>, sp_io::TestExtern
 
     let mut account_pairs = BTreeMap::new();
     for i in 0..pairs.len() {
-        account_pairs.insert(pairs[i].address.clone(), pairs[i].account_id.clone());
+        account_pairs.insert(pairs[i].address, pairs[i].account_id.clone());
     }
 
     let mut accounts = BTreeMap::new();
     for i in 0..pairs.len() {
         accounts.insert(
-            pairs[i].address.clone(),
+            pairs[i].address,
             pallet_evm::GenesisAccount {
                 nonce: U256::default(),
                 balance: U256::from_str("0xffffffffffffffffffffffffffffffff").unwrap(),
@@ -352,7 +352,7 @@ impl LegacyUnsignedTransaction {
     fn signing_hash(&self) -> H256 {
         let mut stream = RlpStream::new();
         self.signing_rlp_append(&mut stream);
-        H256::from_slice(&Keccak256::digest(&stream.out()).as_slice())
+        H256::from_slice(Keccak256::digest(&stream.out()).as_slice())
     }
 
     pub fn sign(&self, key: &H256) -> Transaction {
@@ -405,7 +405,7 @@ impl EIP2930UnsignedTransaction {
         };
         let chain_id = chain_id.unwrap_or(ChainId::get());
         let msg = ethereum::EIP2930TransactionMessage {
-            chain_id: chain_id,
+            chain_id,
             nonce: self.nonce,
             gas_price: self.gas_price,
             gas_limit: self.gas_limit,
@@ -455,7 +455,7 @@ impl EIP1559UnsignedTransaction {
         };
         let chain_id = chain_id.unwrap_or(ChainId::get());
         let msg = ethereum::EIP1559TransactionMessage {
-            chain_id: chain_id,
+            chain_id,
             nonce: self.nonce,
             max_priority_fee_per_gas: self.max_priority_fee_per_gas,
             max_fee_per_gas: self.max_fee_per_gas,

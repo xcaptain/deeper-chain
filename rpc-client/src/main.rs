@@ -34,7 +34,7 @@ fn main() -> Result<(), RpcError> {
         let uri = "http://localhost:9933";
 
         http::connect(uri)
-            .and_then(|client: AuthorClient<Hash, Hash>| remove_all_extrinsics(client))
+            .and_then(remove_all_extrinsics)
             .await
     })
 }
@@ -56,7 +56,7 @@ fn remove_all_extrinsics(
             client.remove_extrinsic(
                 pending
                     .into_iter()
-                    .map(|tx| ExtrinsicOrHash::Extrinsic(tx.into()))
+                    .map(ExtrinsicOrHash::Extrinsic)
                     .collect(),
             )
         })

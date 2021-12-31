@@ -104,8 +104,8 @@ where
         overrides: Arc<OverrideHandle<B>>,
     ) -> Self {
         Self {
-            pool: pool.clone(),
-            client: client.clone(),
+            pool,
+            client,
             network,
             subscriptions,
             overrides,
@@ -161,7 +161,7 @@ impl SubscriptionResult {
         let mut log_index: u32 = 0;
         for (receipt_index, receipt) in receipts.into_iter().enumerate() {
             let mut transaction_log_index: u32 = 0;
-            let transaction_hash: Option<H256> = if receipt.logs.len() > 0 {
+            let transaction_hash: Option<H256> = if !receipt.logs.is_empty() {
                 Some(block.transactions[receipt_index as usize].hash())
             } else {
                 None
@@ -172,9 +172,9 @@ impl SubscriptionResult {
                         address: log.address,
                         topics: log.topics,
                         data: Bytes(log.data),
-                        block_hash: block_hash,
+                        block_hash,
                         block_number: Some(block.header.number),
-                        transaction_hash: transaction_hash,
+                        transaction_hash,
                         transaction_index: Some(U256::from(receipt_index)),
                         log_index: Some(U256::from(log_index)),
                         transaction_log_index: Some(U256::from(transaction_log_index)),
@@ -195,7 +195,7 @@ impl SubscriptionResult {
         params: &FilteredParams,
     ) -> bool {
         let log = Log {
-            address: ethereum_log.address.clone(),
+            address: ethereum_log.address,
             topics: ethereum_log.topics.clone(),
             data: Bytes(ethereum_log.data.clone()),
             block_hash: None,
@@ -206,7 +206,7 @@ impl SubscriptionResult {
             transaction_log_index: None,
             removed: false,
         };
-        if let Some(_) = params.filter {
+        if params.filter.is_some() {
             let block_number =
                 UniqueSaturatedInto::<u64>::unique_saturated_into(block.header.number);
             if !params.filter_block_range(block_number)
@@ -292,12 +292,12 @@ where
                                 ))
                             })
                             .map(|x| {
-                                return Ok::<
+                                Ok::<
                                     Result<PubSubResult, jsonrpc_core::types::error::Error>,
                                     (),
                                 >(Ok(PubSubResult::Log(
                                     Box::new(x),
-                                )));
+                                )))
                             });
                     stream
                         .forward(
@@ -331,7 +331,7 @@ where
                             }
                         })
                         .map(|block| {
-                            return Ok::<_, ()>(Ok(SubscriptionResult::new().new_heads(block)));
+                            Ok::<_, ()>(Ok(SubscriptionResult::new().new_heads(block)))
                         });
                     stream
                         .forward(
@@ -369,12 +369,12 @@ where
                                 }
                             })
                             .map(|transaction| {
-                                return Ok::<
+                                Ok::<
                                     Result<PubSubResult, jsonrpc_core::types::error::Error>,
                                     (),
                                 >(Ok(
                                     PubSubResult::TransactionHash(transaction.hash()),
-                                ));
+                                ))
                             });
                     stream
                         .forward(
@@ -399,12 +399,12 @@ where
                                 }
                             })
                             .map(|syncing| {
-                                return Ok::<
+                                Ok::<
                                     Result<PubSubResult, jsonrpc_core::types::error::Error>,
                                     (),
                                 >(Ok(
-                                    PubSubResult::SyncState(PubSubSyncStatus { syncing: syncing }),
-                                ));
+                                    PubSubResult::SyncState(PubSubSyncStatus { syncing }),
+                                ))
                             });
                     stream
                         .forward(

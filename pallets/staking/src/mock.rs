@@ -27,7 +27,7 @@ use frame_support::{
 use node_primitives::Moment;
 use pallet_credit::{CreditData, CreditLevel, CreditSetting};
 use sp_core::H256;
-use sp_io;
+
 use sp_runtime::{
     testing::{Header, TestXt, UintAuthorityId},
     traits::{IdentityLookup, Zero},
@@ -66,7 +66,7 @@ impl OneSessionHandler<AccountId> for OtherSessionHandler {
         AccountId: 'a,
     {
         SESSION.with(|x| {
-            *x.borrow_mut() = (validators.map(|x| x.0.clone()).collect(), HashSet::new())
+            *x.borrow_mut() = (validators.map(|x| *x.0).collect(), HashSet::new())
         });
     }
 
@@ -645,8 +645,8 @@ impl ExtBuilder {
         }
 
         staking::GenesisConfig::<Test> {
-            stakers: stakers,
-            delegations: delegations,
+            stakers,
+            delegations,
             validator_count: self.validator_count,
             era_validator_reward: TOTAL_MINING_REWARD / 100_000,
             minimum_validator_count: self.minimum_validator_count,
@@ -696,7 +696,7 @@ impl ExtBuilder {
 
         ext
     }
-    pub fn build_and_execute(self, test: impl FnOnce() -> ()) {
+    pub fn build_and_execute(self, test: impl FnOnce()) {
         let mut ext = self.build();
         ext.execute_with(test);
         ext.execute_with(post_conditions);
@@ -815,7 +815,7 @@ pub(crate) fn advance_session() {
 
 /// Progress until the given era.
 pub(crate) fn start_active_era(era_index: EraIndex) {
-    start_session((era_index * <SessionsPerEra as Get<u32>>::get()).into());
+    start_session((era_index * <SessionsPerEra as Get<u32>>::get()));
     assert_eq!(active_era(), era_index);
     // One way or another, current_era must have changed before the active era, so they must match
     // at this point.
@@ -873,8 +873,8 @@ pub(crate) fn add_slash(who: &AccountId) {
     on_offence_now(
         &[OffenceDetails {
             offender: (
-                who.clone(),
-                Staking::eras_stakers(Staking::active_era().unwrap().index, who.clone()),
+                *who,
+                Staking::eras_stakers(Staking::active_era().unwrap().index, *who),
             ),
             reporters: vec![],
         }],

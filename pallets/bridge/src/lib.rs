@@ -235,10 +235,10 @@ pub mod pallet {
                 let blocked_yesterday = <DailyBlocked<T>>::get(yesterday);
                 blocked_yesterday
                     .iter()
-                    .for_each(|a| <DailyLimits<T>>::remove(a));
+                    .for_each(<DailyLimits<T>>::remove);
                 blocked_yesterday.iter().for_each(|a| {
                     let now = <pallet_timestamp::Pallet<T>>::get();
-                    let hash = (now.clone(), a.clone())
+                    let hash = (now, a.clone())
                         .using_encoded(<T as frame_system::Config>::Hashing::hash);
                     Self::deposit_event(Event::AccountResumedMessage(hash, a.clone(), now));
                 });
@@ -679,7 +679,7 @@ pub mod pallet {
         fn manage_validator_list(
             info: ValidatorMessage<T::AccountId, T::Hash>,
         ) -> Result<(), &'static str> {
-            let new_count = info.accounts.clone().len() as u32;
+            let new_count = info.accounts.len() as u32;
             ensure!(
                 new_count < MAX_VALIDATORS,
                 "New validator list is exceeding allowed length."
@@ -687,7 +687,7 @@ pub mod pallet {
             <Quorum<T>>::put(info.quorum);
             <ValidatorsCount<T>>::put(new_count);
             info.accounts
-                .clone()
+                
                 .iter()
                 .for_each(|v| <Validators<T>>::insert(v, true));
             Self::update_status(info.message_id, Status::Confirmed, Kind::Validator)
@@ -865,7 +865,7 @@ pub mod pallet {
                     if !v.contains(&account) {
                         v.push(account.clone());
                         let now = <pallet_timestamp::Pallet<T>>::get();
-                        let hash = (now.clone(), account.clone()).using_encoded(T::Hashing::hash);
+                        let hash = (now, account.clone()).using_encoded(T::Hashing::hash);
                         Self::deposit_event(Event::AccountPausedMessage(hash, account, now))
                     }
                 });

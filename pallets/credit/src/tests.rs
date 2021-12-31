@@ -136,7 +136,7 @@ fn add_or_update_credit_data() {
             reward_eras: 0,
         };
         assert_eq!(
-            Credit::add_or_update_credit_data(RawOrigin::Root.into(), 1, credit_data.clone()),
+            Credit::add_or_update_credit_data(RawOrigin::Root.into(), 1, credit_data),
             Err(DispatchErrorWithPostInfo::from(
                 Error::<Test>::InvalidCreditData
             ))
@@ -152,7 +152,7 @@ fn add_or_update_credit_data() {
             reward_eras: 100,
         };
         assert_eq!(
-            Credit::add_or_update_credit_data(RawOrigin::Root.into(), 1, credit_data.clone()),
+            Credit::add_or_update_credit_data(RawOrigin::Root.into(), 1, credit_data),
             Err(DispatchErrorWithPostInfo::from(
                 Error::<Test>::InvalidCreditData
             ))
@@ -604,7 +604,7 @@ fn reward_remain_eras_count() {
         assert_ok!(Credit::add_or_update_credit_data(
             RawOrigin::Root.into(),
             12,
-            credit_data.clone()
+            credit_data
         ));
 
         let credit_historys = vec![
