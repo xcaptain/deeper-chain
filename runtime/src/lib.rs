@@ -418,7 +418,7 @@ impl pallet_babe::Config for Runtime {
 }
 
 parameter_types! {
-    pub const IndexDeposit: Balance = 1 * DPR;
+    pub const IndexDeposit: Balance = DPR;
 }
 
 impl pallet_indices::Config for Runtime {
@@ -447,7 +447,7 @@ impl pallet_balances::Config for Runtime {
 }
 
 parameter_types! {
-    pub const TransactionByteFee: Balance = 1 * MILLICENTS;
+    pub const TransactionByteFee: Balance = MILLICENTS;
     pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
     pub AdjustmentVariable: Multiplier = Multiplier::saturating_from_rational(1, 100_000);
     pub MinimumMultiplier: Multiplier = Multiplier::saturating_from_rational(1, 1_000_000_000u128);
@@ -566,7 +566,7 @@ parameter_types! {
     pub const EnactmentPeriod: BlockNumber = 30 * 24 * 60 * MINUTES;
     pub const CooloffPeriod: BlockNumber = 28 * 24 * 60 * MINUTES;
     // One cent: $10,000 / MB
-    pub const PreimageByteDeposit: Balance = 1 * CENTS;
+    pub const PreimageByteDeposit: Balance = CENTS;
     pub const MaxVotes: u32 = 100;
     pub const MaxProposals: u32 = 100;
 }
@@ -715,15 +715,15 @@ impl pallet_membership::Config<pallet_membership::Instance1> for Runtime {
 
 parameter_types! {
     pub const ProposalBond: Permill = Permill::from_percent(5);
-    pub const ProposalBondMinimum: Balance = 1 * DPR;
-    pub const SpendPeriod: BlockNumber = 1 * DAYS;
+    pub const ProposalBondMinimum: Balance = DPR;
+    pub const SpendPeriod: BlockNumber = DAYS;
     pub const Burn: Permill = Permill::from_percent(50);
-    pub const TipCountdown: BlockNumber = 1 * DAYS;
+    pub const TipCountdown: BlockNumber = DAYS;
     pub const TipFindersFee: Percent = Percent::from_percent(20);
-    pub const TipReportDepositBase: Balance = 1 * DPR;
-    pub const DataDepositPerByte: Balance = 1 * CENTS;
-    pub const BountyDepositBase: Balance = 1 * DPR;
-    pub const BountyDepositPayoutDelay: BlockNumber = 1 * DAYS;
+    pub const TipReportDepositBase: Balance = DPR;
+    pub const DataDepositPerByte: Balance = CENTS;
+    pub const BountyDepositBase: Balance = DPR;
+    pub const BountyDepositPayoutDelay: BlockNumber = DAYS;
     pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
     pub const BountyUpdatePeriod: BlockNumber = 14 * DAYS;
     pub const MaximumReasonLength: u32 = 16384;
@@ -1057,10 +1057,10 @@ impl pallet_lottery::Config for Runtime {
 
 parameter_types! {
     pub const AssetDeposit: Balance = 100 * DPR;
-    pub const ApprovalDeposit: Balance = 1 * DPR;
+    pub const ApprovalDeposit: Balance = DPR;
     pub const StringLimit: u32 = 50;
     pub const MetadataDepositBase: Balance = 10 * DPR;
-    pub const MetadataDepositPerByte: Balance = 1 * DPR;
+    pub const MetadataDepositPerByte: Balance = DPR;
 }
 
 impl pallet_assets::Config for Runtime {

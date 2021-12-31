@@ -185,7 +185,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 1,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 0,
@@ -196,7 +196,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 2,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 0,
@@ -207,7 +207,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 3,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 0,
@@ -218,7 +218,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 7,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 0,
@@ -229,7 +229,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 12,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 0,
@@ -240,7 +240,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 18,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 0,
@@ -251,7 +251,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 25,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 0,
@@ -262,7 +262,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 34,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 1,
@@ -284,7 +284,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 1,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 1,
@@ -295,7 +295,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 2,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 1,
@@ -306,7 +306,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 3,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 1,
@@ -317,7 +317,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 7,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 1,
@@ -328,7 +328,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 12,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 1,
@@ -339,7 +339,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 18,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 1,
@@ -350,7 +350,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 25,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
             CreditSetting {
                 campaign_id: 1,
@@ -361,7 +361,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
                 max_rank_with_bonus: 0u32,
                 tax_rate: Percent::from_percent(0),
                 max_referees_with_rewards: 34,
-                reward_per_referee: 0 * DPR,
+                reward_per_referee: 0,
             },
         ],
         user_credit_data: vec![
