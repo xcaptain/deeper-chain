@@ -171,7 +171,7 @@ benchmarks! {
             Micropayment::<T>::channel(&client, &server),
             ChannelOf::<T> {
                 client: client.clone(),
-                server: server,
+                server,
                 balance: balance_of_chain,
                 nonce: 0,
                 opened: 0u32.into(),
