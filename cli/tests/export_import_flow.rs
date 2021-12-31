@@ -33,8 +33,8 @@ fn contains_error(logged_output: &str) -> bool {
 /// The fields are paths to a temporary directory
 struct ExportImportRevertExecutor<'a> {
     base_path: &'a TempDir,
-    exported_blocks_file: &Path,
-    db_path: &Path,
+    exported_blocks_file: &'a Path,
+    db_path: &'a Path,
     num_exported_blocks: Option<u64>,
 }
 
@@ -62,8 +62,8 @@ impl ToString for SubCommand {
 impl<'a> ExportImportRevertExecutor<'a> {
     fn new(
         base_path: &'a TempDir,
-        exported_blocks_file: &Path,
-        db_path: &Path,
+        exported_blocks_file: &'a Path,
+        db_path: &'a Path,
     ) -> Self {
         Self {
             base_path,
